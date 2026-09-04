@@ -8,7 +8,9 @@ from __future__ import annotations
 
 import json
 import logging
+from collections import Counter
 from collections.abc import Sequence
+from dataclasses import dataclass
 from pathlib import Path
 
 from .events import (
@@ -73,6 +75,60 @@ def save_macro(
     path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
     logger.info("saved %d event(s) to %s", len(events), path)
     return path
+
+
+def _dominant_window(events: Sequence[MacroEvent]) -> str:
+    """The window most events were recorded in.
+
+    Not the first event's window: recording typically starts in the terminal
+    and only then alt-tabs into the game, so the first title is misleading.
+    Blank titles are ignored.
+    """
+    titles = Counter(event.window for event in events if event.window)
+    if not titles:
+        return ""
+    return titles.most_common(1)[0][0]
+
+
+@dataclass(frozen=True, slots=True)
+class MacroSummary:
+    """One row of the macro library listing."""
+
+    name: str
+    created: str
+    event_count: int
+    duration: float
+    window: str
+
+
+def list_macros(macros_dir: Path | str = DEFAULT_MACROS_DIR) -> list[MacroSummary]:
+    """Summarize every readable macro in ``macros_dir``, sorted by name.
+
+    Unreadable or malformed files are logged and skipped rather than breaking
+    the whole listing.
+    """
+    directory = Path(macros_dir)
+    if not directory.is_dir():
+        return []
+
+    summaries = []
+    for path in sorted(directory.glob("*.json")):
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+            events = events_from_dict(payload)
+        except (OSError, json.JSONDecodeError, MacroSerializationError):
+            logger.warning("skipping unreadable macro file %s", path, exc_info=True)
+            continue
+        summaries.append(
+            MacroSummary(
+                name=path.stem,
+                created=str(payload.get("created", "")),
+                event_count=len(events),
+                duration=events[-1].t if events else 0.0,
+                window=_dominant_window(events),
+            )
+        )
+    return summaries
 
 
 def load_macro(

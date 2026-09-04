@@ -103,7 +103,9 @@ def test_negative_gaps_never_sleep_backwards():
 
     make_player(sleep=sleep).play(events)
 
-    assert sleep.durations == [0.0]
+    # A backwards gap must never sleep; a zero-length wait is skipped outright.
+    assert all(duration >= 0.0 for duration in sleep.durations)
+    assert sum(sleep.durations) == 0.0
 
 
 def test_backend_is_called_in_recorded_order():

@@ -42,10 +42,40 @@ $env:PYTHONPATH = "src"
 python -m macrologger.cli play demo
 ```
 
+List everything you have recorded:
+
+```powershell
+python -m macrologger.cli list
+```
+
+```
+NAME  EVENTS  SECONDS  RECORDED IN
+demo     130    21.62  Minecraft 1.21
+```
+
 Options:
 
 - `-v` / `--verbose` — log every individual event (DEBUG)
 - `--stop-key <key>` — use a different stop key when recording (default `esc`)
+- `--loop N` — replay the macro N times; bare `--loop` repeats until you stop it
+- `--loop-delay SECONDS` — pause between loop iterations
+- `--jitter FRACTION` — randomize each gap by ±half this fraction, so looped
+  cycles are not byte-identical (`0.1` = ±5%)
+- `--hotkey [KEYS]` — wait for a hotkey instead of playing immediately; press it
+  to start, press again to stop (default `f8`, e.g. `--hotkey ctrl+shift+p`)
+
+### Hotkey playback
+
+```powershell
+python -m macrologger.cli play demo --loop --jitter 0.1 --hotkey f8
+```
+
+Loads the macro and waits. Alt-tab into Minecraft, press **F8** to start, press
+**F8** again to stop. The hotkey is also the emergency stop — stopping releases
+any key or mouse button the macro was still holding, so you are never left
+walking forward. Ctrl+C in the terminal quits.
+
+Looping forever requires `--hotkey`, since that is what stops it.
 
 Macros are saved to `macros/<name>.json`:
 
@@ -63,6 +93,29 @@ Macros are saved to `macros/<name>.json`:
 
 `t` is seconds since the first recorded event (`time.perf_counter()`), so replay reproduces
 the original inter-event gaps. Mouse *movement* is deliberately never recorded or replayed.
+
+### Overlay spike (Milestone 4, needs in-game verification)
+
+```powershell
+python -m macrologger.cli overlay
+```
+
+Shows a small always-on-top panel with the keys you are pressing. Alt-tab into
+Minecraft and check three things:
+
+1. It stays visible on top of the game.
+2. Minecraft **keeps focus** — you can still move and look around. (The window
+   sets `WS_EX_NOACTIVATE`, so it should never steal focus.)
+3. Clicks pass straight through it into the game (`WS_EX_TRANSPARENT`).
+
+Ctrl+C in the terminal closes it. Move it with `--position 40,200`.
+
+Minecraft must be in **borderless windowed** mode for the overlay to be visible;
+in exclusive fullscreen Windows will not composite another window over the game.
+
+| Date | Outcome |
+|---|---|
+| _pending_ | **NOT YET RUN over Minecraft** — window styles verified programmatically (NOACTIVATE / TRANSPARENT / LAYERED / TOOLWINDOW all set), but on-screen behaviour over the game is unconfirmed. |
 
 ## Tests
 
@@ -93,7 +146,7 @@ continuing to the next milestone.
 | Date | Step | Outcome |
 |---|---|---|
 | 2026-09-04 | Record (steps 1–4) | **PASS** — 130 events captured to `macros/demo.json` with Minecraft Java focused. |
-| 2026-09-04 | Replay (steps 5–6) | **PENDING RE-RUN** — first attempt crashed before any click was sent (see below); fixed, awaiting a repeat run. |
+| 2026-09-04 | Replay (steps 5–6) | **PASS** — after the click fix below, the character visibly walked forward and the right-click registered in Minecraft Java. `pydirectinput` reaches the game; the Interception-driver fallback is **not** needed. |
 
 Replay crash, 2026-09-04: `pydirectinput.mouseDown` takes `x` as its first positional
 parameter and `button` third, so passing the button positionally made the library treat
@@ -104,8 +157,8 @@ pointer movement is emitted. Regression tests:
 `test_clicks_pass_the_button_by_keyword_not_as_a_coordinate` and
 `test_replay_never_moves_the_mouse` in `tests/test_player_timing.py`.
 
-Whether Minecraft Java actually registers replayed input is still unproven — the run never
-reached a click. Re-run steps 5–6 and record the outcome here.
+This resolves the PRD's top open question and risk: Minecraft Java does register
+`pydirectinput`'s scancode-level input for both keys and clicks.
 
 ## Windows Defender / SmartScreen
 

@@ -35,12 +35,14 @@ class FakeRecorder:
 
 class FakePlayer:
     played = []
+    options = {}
 
     def __init__(self, *args, **kwargs):
         pass
 
-    def play(self, events):
+    def play(self, events, **kwargs):
         FakePlayer.played = list(events)
+        FakePlayer.options = kwargs
 
 
 def test_record_saves_the_captured_events(macros_dir, monkeypatch):
@@ -58,6 +60,61 @@ def test_play_replays_the_saved_events(macros_dir, monkeypatch):
     assert FakePlayer.played == sample_events()
 
 
+def test_play_defaults_to_a_single_pass_without_jitter(macros_dir, monkeypatch):
+    monkeypatch.setattr(cli, "Player", FakePlayer)
+    save_macro("demo", sample_events(), macros_dir=macros_dir)
+
+    cli.main(["play", "demo"])
+
+    assert FakePlayer.options == {"loop": 1, "loop_delay": 0.0, "jitter": 0.0}
+
+
+def test_loop_count_and_jitter_flags_reach_the_player(macros_dir, monkeypatch):
+    monkeypatch.setattr(cli, "Player", FakePlayer)
+    save_macro("demo", sample_events(), macros_dir=macros_dir)
+
+    cli.main(["play", "demo", "--loop", "4", "--loop-delay", "2.5", "--jitter", "0.1"])
+
+    assert FakePlayer.options == {"loop": 4, "loop_delay": 2.5, "jitter": 0.1}
+
+
+def test_bare_loop_flag_means_repeat_until_stopped(macros_dir, monkeypatch):
+    captured = {}
+
+    def fake_hotkey_play(events, summary, hotkey, loop, loop_delay, jitter):
+        captured["loop"] = loop
+        captured["hotkey"] = hotkey
+        return 0
+
+    monkeypatch.setattr(cli, "_play_with_hotkey", fake_hotkey_play)
+    save_macro("demo", sample_events(), macros_dir=macros_dir)
+
+    cli.main(["play", "demo", "--loop", "--hotkey"])
+
+    assert captured == {"loop": None, "hotkey": "f8"}
+
+
+def test_endless_loop_without_a_hotkey_is_refused_with_a_message(macros_dir, capsys):
+    """There would be no way to stop it, so say so instead of crashing."""
+    save_macro("demo", sample_events(), macros_dir=macros_dir)
+
+    exit_code = cli.main(["play", "demo", "--loop"])
+
+    err = capsys.readouterr().err
+    assert exit_code != 0
+    assert "--hotkey" in err
+    assert "Traceback" not in err
+
+
+def test_invalid_hotkey_exits_non_zero_with_a_message(macros_dir, capsys):
+    save_macro("demo", sample_events(), macros_dir=macros_dir)
+
+    exit_code = cli.main(["play", "demo", "--hotkey", "ctrl+nope"])
+
+    assert exit_code != 0
+    assert "nope" in capsys.readouterr().err
+
+
 def test_play_missing_macro_exits_non_zero_with_a_message(macros_dir, capsys):
     exit_code = cli.main(["play", "nope"])
 
@@ -72,7 +129,7 @@ def test_play_unknown_code_exits_non_zero_with_a_message(
         def __init__(self, *args, **kwargs):
             pass
 
-        def play(self, events):
+        def play(self, events, **kwargs):
             raise UnknownCodeError("no DirectInput key for code 'nope'")
 
     monkeypatch.setattr(cli, "Player", ExplodingPlayer)
@@ -138,6 +195,25 @@ def test_missing_input_backend_exits_non_zero_with_a_message(
 
     assert exit_code != 0
     assert "pydirectinput" in capsys.readouterr().err
+
+
+def test_list_shows_saved_macros_with_context(macros_dir, capsys):
+    save_macro("demo", sample_events(), macros_dir=macros_dir)
+
+    exit_code = cli.main(["list"])
+
+    output = capsys.readouterr().out
+    assert exit_code == 0
+    assert "demo" in output
+    assert "Minecraft 1.21" in output
+    assert "2" in output  # event count
+
+
+def test_list_on_an_empty_library_says_so(macros_dir, capsys):
+    exit_code = cli.main(["list"])
+
+    assert exit_code == 0
+    assert "no macros" in capsys.readouterr().out.lower()
 
 
 def test_unknown_command_exits_non_zero(macros_dir):

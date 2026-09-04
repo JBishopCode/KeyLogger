@@ -8,6 +8,7 @@ from macrologger.events import MacroEvent, MacroSerializationError
 from macrologger.storage import (
     InvalidMacroNameError,
     MacroNotFoundError,
+    list_macros,
     load_macro,
     macro_path,
     save_macro,
@@ -88,6 +89,83 @@ def test_load_wrong_schema_raises_serialization_error(tmp_path):
 
     with pytest.raises(MacroSerializationError):
         load_macro("bad", macros_dir=tmp_path)
+
+
+def test_list_macros_is_empty_when_the_directory_does_not_exist(tmp_path):
+    assert list_macros(macros_dir=tmp_path / "nope") == []
+
+
+def test_list_macros_returns_names_sorted(tmp_path):
+    for name in ("zeta", "alpha", "mid"):
+        save_macro(name, sample_events(), macros_dir=tmp_path)
+
+    assert [summary.name for summary in list_macros(macros_dir=tmp_path)] == [
+        "alpha",
+        "mid",
+        "zeta",
+    ]
+
+
+def test_list_macros_reports_event_count_created_and_window(tmp_path):
+    save_macro("demo", sample_events(), macros_dir=tmp_path)
+
+    summary = list_macros(macros_dir=tmp_path)[0]
+
+    assert summary.event_count == 3
+    assert summary.created.endswith("Z")
+    assert summary.window == "Minecraft 1.21"
+
+
+def test_list_macros_reports_the_most_common_window_not_the_first(tmp_path):
+    """Recording usually starts in the terminal, then alt-tabs into the game."""
+    events = [
+        MacroEvent(0.0, "key", "down", "w", "KeyLogger - Visual Studio Code"),
+        MacroEvent(0.1, "key", "up", "w", "Minecraft 1.21"),
+        MacroEvent(0.2, "key", "down", "a", "Minecraft 1.21"),
+        MacroEvent(0.3, "key", "up", "a", "Minecraft 1.21"),
+    ]
+    save_macro("demo", events, macros_dir=tmp_path)
+
+    assert list_macros(macros_dir=tmp_path)[0].window == "Minecraft 1.21"
+
+
+def test_list_macros_ignores_blank_windows_when_picking_the_common_one(tmp_path):
+    events = [
+        MacroEvent(0.0, "key", "down", "w", ""),
+        MacroEvent(0.1, "key", "up", "w", ""),
+        MacroEvent(0.2, "key", "down", "a", "Minecraft 1.21"),
+    ]
+    save_macro("demo", events, macros_dir=tmp_path)
+
+    assert list_macros(macros_dir=tmp_path)[0].window == "Minecraft 1.21"
+
+
+def test_list_macros_reports_duration_from_the_last_event(tmp_path):
+    save_macro("demo", sample_events(), macros_dir=tmp_path)
+
+    assert list_macros(macros_dir=tmp_path)[0].duration == pytest.approx(0.9)
+
+
+def test_list_macros_handles_an_empty_macro(tmp_path):
+    save_macro("empty", [], macros_dir=tmp_path)
+
+    summary = list_macros(macros_dir=tmp_path)[0]
+
+    assert (summary.event_count, summary.duration, summary.window) == (0, 0.0, "")
+
+
+def test_list_macros_skips_unreadable_files_instead_of_failing(tmp_path):
+    save_macro("good", sample_events(), macros_dir=tmp_path)
+    (tmp_path / "broken.json").write_text("{not json", encoding="utf-8")
+
+    assert [summary.name for summary in list_macros(macros_dir=tmp_path)] == ["good"]
+
+
+def test_list_macros_ignores_non_json_files(tmp_path):
+    save_macro("good", sample_events(), macros_dir=tmp_path)
+    (tmp_path / "notes.txt").write_text("hello", encoding="utf-8")
+
+    assert [summary.name for summary in list_macros(macros_dir=tmp_path)] == ["good"]
 
 
 @pytest.mark.parametrize("name", ["", "..", "../escape", "sub/dir", "back\\slash"])

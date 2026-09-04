@@ -1,0 +1,1575 @@
+{
+  "name": "looktest",
+  "created": "2026-09-04T19:38:08Z",
+  "version": 2,
+  "events": [
+    {
+      "t": 0.0,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "README.md - KeyLogger - Visual Studio Code",
+      "dx": 1,
+      "dy": -10
+    },
+    {
+      "t": 0.05109039999933884,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "README.md - KeyLogger - Visual Studio Code",
+      "dx": -19,
+      "dy": -14
+    },
+    {
+      "t": 0.28307739999945625,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "README.md - KeyLogger - Visual Studio Code",
+      "dx": -11,
+      "dy": -2
+    },
+    {
+      "t": 0.33400069999970583,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "README.md - KeyLogger - Visual Studio Code",
+      "dx": -1,
+      "dy": 8
+    },
+    {
+      "t": 0.3881271000000197,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "README.md - KeyLogger - Visual Studio Code",
+      "dx": 4,
+      "dy": 5
+    },
+    {
+      "t": 0.4391729999997551,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "README.md - KeyLogger - Visual Studio Code",
+      "dx": 2,
+      "dy": 1
+    },
+    {
+      "t": 0.491035600000032,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "README.md - KeyLogger - Visual Studio Code",
+      "dx": 4,
+      "dy": 4
+    },
+    {
+      "t": 0.5430506999991849,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "README.md - KeyLogger - Visual Studio Code",
+      "dx": 2,
+      "dy": 5
+    },
+    {
+      "t": 0.5930980999992244,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "README.md - KeyLogger - Visual Studio Code",
+      "dx": -4,
+      "dy": 9
+    },
+    {
+      "t": 0.6449889999994411,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "README.md - KeyLogger - Visual Studio Code",
+      "dx": -5,
+      "dy": 13
+    },
+    {
+      "t": 0.6950487999993129,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "README.md - KeyLogger - Visual Studio Code",
+      "dx": -9,
+      "dy": 7
+    },
+    {
+      "t": 0.7530366999999387,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "README.md - KeyLogger - Visual Studio Code",
+      "dx": -1,
+      "dy": 1
+    },
+    {
+      "t": 0.804230099999586,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "README.md - KeyLogger - Visual Studio Code",
+      "dx": -2,
+      "dy": 4
+    },
+    {
+      "t": 0.8550477999997383,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "README.md - KeyLogger - Visual Studio Code",
+      "dx": 4,
+      "dy": 5
+    },
+    {
+      "t": 0.908056199999919,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "README.md - KeyLogger - Visual Studio Code",
+      "dx": 7,
+      "dy": 3
+    },
+    {
+      "t": 0.9720283999995445,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "README.md - KeyLogger - Visual Studio Code",
+      "dx": 4,
+      "dy": 1
+    },
+    {
+      "t": 1.0831553999996686,
+      "type": "click",
+      "action": "down",
+      "code": "left",
+      "window": "README.md - KeyLogger - Visual Studio Code"
+    },
+    {
+      "t": 1.1842352999992727,
+      "type": "click",
+      "action": "up",
+      "code": "left",
+      "window": ""
+    },
+    {
+      "t": 1.2850556999992477,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": 2,
+      "dy": 0
+    },
+    {
+      "t": 1.3359782999996241,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": -3,
+      "dy": -5
+    },
+    {
+      "t": 1.3859962999995332,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": -30,
+      "dy": -18
+    },
+    {
+      "t": 1.4407369999998991,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": -49,
+      "dy": -13
+    },
+    {
+      "t": 1.4940429999996923,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": -51,
+      "dy": -13
+    },
+    {
+      "t": 1.573032599999351,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": -1,
+      "dy": 0
+    },
+    {
+      "t": 1.6239937999998801,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": -5,
+      "dy": -2
+    },
+    {
+      "t": 1.6740953999997146,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": -200,
+      "dy": -52
+    },
+    {
+      "t": 1.7250091999994766,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": -355,
+      "dy": -89
+    },
+    {
+      "t": 2.0240459999995437,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": -57,
+      "dy": -5
+    },
+    {
+      "t": 2.075005799999417,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": -138,
+      "dy": -77
+    },
+    {
+      "t": 2.1250780000000304,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": -458,
+      "dy": -246
+    },
+    {
+      "t": 2.176013699999203,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": -260,
+      "dy": -122
+    },
+    {
+      "t": 2.2269735999998375,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": -133,
+      "dy": -58
+    },
+    {
+      "t": 2.2770576999992045,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": -90,
+      "dy": -17
+    },
+    {
+      "t": 2.328065400000014,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": -68,
+      "dy": -2
+    },
+    {
+      "t": 2.378077299999859,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": -27,
+      "dy": -3
+    },
+    {
+      "t": 2.4320436999996673,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": -1,
+      "dy": 0
+    },
+    {
+      "t": 2.5880299999998897,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": -2,
+      "dy": 1
+    },
+    {
+      "t": 2.639026699999704,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": -49,
+      "dy": -4
+    },
+    {
+      "t": 2.7220571999996537,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": -30,
+      "dy": -2
+    },
+    {
+      "t": 2.8271970999994664,
+      "type": "click",
+      "action": "down",
+      "code": "left",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 2.9542633999999452,
+      "type": "click",
+      "action": "up",
+      "code": "left",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 3.303056299999298,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": -84,
+      "dy": 207
+    },
+    {
+      "t": 3.3530893999995897,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": -1,
+      "dy": -1
+    },
+    {
+      "t": 3.404086599999573,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": 0,
+      "dy": 1
+    },
+    {
+      "t": 3.4550499999995736,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": -4,
+      "dy": 1
+    },
+    {
+      "t": 3.562048299999333,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": 5,
+      "dy": -1
+    },
+    {
+      "t": 3.6120500999995784,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": -1,
+      "dy": 0
+    },
+    {
+      "t": 3.662983699999131,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": -2,
+      "dy": 0
+    },
+    {
+      "t": 3.7130015999991883,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": 2,
+      "dy": 0
+    },
+    {
+      "t": 3.806029800000033,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": 1,
+      "dy": 0
+    },
+    {
+      "t": 3.9760449999994307,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": 0,
+      "dy": 1
+    },
+    {
+      "t": 3.9864926999998715,
+      "type": "key",
+      "action": "down",
+      "code": "w",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 4.284089299999323,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": -1,
+      "dy": -1
+    },
+    {
+      "t": 4.47150959999999,
+      "type": "key",
+      "action": "up",
+      "code": "w",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 5.055118799999946,
+      "type": "key",
+      "action": "down",
+      "code": "s",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 5.433335499999885,
+      "type": "key",
+      "action": "up",
+      "code": "s",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 5.9931058999991365,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": 1,
+      "dy": 0
+    },
+    {
+      "t": 6.072065499999553,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": -1,
+      "dy": 0
+    },
+    {
+      "t": 6.123021599999447,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": -27,
+      "dy": -5
+    },
+    {
+      "t": 6.173067199999423,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": 15,
+      "dy": 4
+    },
+    {
+      "t": 6.223149799999192,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": -47,
+      "dy": -4
+    },
+    {
+      "t": 6.274011499999688,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": 54,
+      "dy": 5
+    },
+    {
+      "t": 6.325050599999486,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": -10,
+      "dy": 0
+    },
+    {
+      "t": 6.376013599999169,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": -1,
+      "dy": 0
+    },
+    {
+      "t": 6.428022599999167,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": 16,
+      "dy": 0
+    },
+    {
+      "t": 6.485069499999554,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": 1,
+      "dy": 0
+    },
+    {
+      "t": 6.536002299999382,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": 69,
+      "dy": 4
+    },
+    {
+      "t": 6.58699069999966,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": 35,
+      "dy": -4
+    },
+    {
+      "t": 6.638030999999501,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": -68,
+      "dy": 0
+    },
+    {
+      "t": 6.688106299999163,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": -21,
+      "dy": -2
+    },
+    {
+      "t": 6.981068699999923,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": -14,
+      "dy": 2
+    },
+    {
+      "t": 7.031989299999623,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": 43,
+      "dy": 3
+    },
+    {
+      "t": 7.083061899999848,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": 77,
+      "dy": 6
+    },
+    {
+      "t": 7.134019099999932,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": -107,
+      "dy": -10
+    },
+    {
+      "t": 7.184968300000037,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": 16,
+      "dy": 0
+    },
+    {
+      "t": 7.236107199999424,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": -30,
+      "dy": 1
+    },
+    {
+      "t": 7.2869685999994545,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": -17,
+      "dy": 0
+    },
+    {
+      "t": 7.337994099999378,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": -38,
+      "dy": 2
+    },
+    {
+      "t": 7.388017699999182,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": 34,
+      "dy": -1
+    },
+    {
+      "t": 7.438060799999221,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": 7,
+      "dy": -1
+    },
+    {
+      "t": 7.489038299999265,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": 8,
+      "dy": 1
+    },
+    {
+      "t": 7.542103499999939,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": 5,
+      "dy": -1
+    },
+    {
+      "t": 7.621021699999801,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": 1,
+      "dy": 0
+    },
+    {
+      "t": 7.671982500000013,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": 16,
+      "dy": -4
+    },
+    {
+      "t": 7.722083799999382,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": 0,
+      "dy": -6
+    },
+    {
+      "t": 7.772958199999266,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": -2,
+      "dy": -2
+    },
+    {
+      "t": 7.822963599999639,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": 4,
+      "dy": -10
+    },
+    {
+      "t": 7.872991699999147,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": -15,
+      "dy": 20
+    },
+    {
+      "t": 7.923076000000037,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": -1,
+      "dy": 1
+    },
+    {
+      "t": 7.973990599999524,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": -4,
+      "dy": 4
+    },
+    {
+      "t": 8.024970699999358,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": -40,
+      "dy": 33
+    },
+    {
+      "t": 8.07604209999954,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": 37,
+      "dy": -32
+    },
+    {
+      "t": 8.126043699999173,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": -19,
+      "dy": 12
+    },
+    {
+      "t": 8.17698879999989,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": 14,
+      "dy": -7
+    },
+    {
+      "t": 8.228091199999653,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": 10,
+      "dy": -8
+    },
+    {
+      "t": 8.279095599999891,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": 0,
+      "dy": -2
+    },
+    {
+      "t": 8.3560465999999,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": 0,
+      "dy": 1
+    },
+    {
+      "t": 8.406989999999496,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": -34,
+      "dy": 30
+    },
+    {
+      "t": 8.458055399999466,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": -85,
+      "dy": 30
+    },
+    {
+      "t": 8.509010899999339,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": 91,
+      "dy": -45
+    },
+    {
+      "t": 8.55905839999923,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": 24,
+      "dy": -13
+    },
+    {
+      "t": 8.61003399999936,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": 6,
+      "dy": -3
+    },
+    {
+      "t": 8.661000899999635,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": 65,
+      "dy": -30
+    },
+    {
+      "t": 8.711983499999405,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": 29,
+      "dy": -25
+    },
+    {
+      "t": 8.7620038999994,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": -66,
+      "dy": 35
+    },
+    {
+      "t": 8.812117399999806,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": -25,
+      "dy": 16
+    },
+    {
+      "t": 8.938041799999155,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": -5,
+      "dy": 5
+    },
+    {
+      "t": 8.988997899999958,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": -17,
+      "dy": -7
+    },
+    {
+      "t": 9.039053599999534,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": -20,
+      "dy": -10
+    },
+    {
+      "t": 9.090080699999817,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": 19,
+      "dy": 6
+    },
+    {
+      "t": 9.140990899999451,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": -10,
+      "dy": -13
+    },
+    {
+      "t": 9.191986999999244,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": 20,
+      "dy": 17
+    },
+    {
+      "t": 9.24200539999947,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": 11,
+      "dy": 11
+    },
+    {
+      "t": 9.292061099999955,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": 55,
+      "dy": 36
+    },
+    {
+      "t": 9.343047599999409,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": 4,
+      "dy": -9
+    },
+    {
+      "t": 9.39396189999934,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": -28,
+      "dy": -16
+    },
+    {
+      "t": 9.444052199999533,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": -31,
+      "dy": -13
+    },
+    {
+      "t": 9.496026799999527,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": -3,
+      "dy": -2
+    },
+    {
+      "t": 9.612958499999877,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": 1,
+      "dy": 1
+    },
+    {
+      "t": 9.66298740000002,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": 12,
+      "dy": 11
+    },
+    {
+      "t": 9.713029099999403,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": 97,
+      "dy": 65
+    },
+    {
+      "t": 9.763033199999882,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": -11,
+      "dy": -9
+    },
+    {
+      "t": 9.8139627999999,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": -92,
+      "dy": -61
+    },
+    {
+      "t": 9.864948799999183,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": -15,
+      "dy": -10
+    },
+    {
+      "t": 9.914963100000023,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": -21,
+      "dy": -9
+    },
+    {
+      "t": 9.965050499999961,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": -12,
+      "dy": -8
+    },
+    {
+      "t": 10.015990999999303,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": 38,
+      "dy": 17
+    },
+    {
+      "t": 10.0861218,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": 3,
+      "dy": 3
+    },
+    {
+      "t": 10.138048499999968,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": -1,
+      "dy": 0
+    },
+    {
+      "t": 10.188995799999248,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": 3,
+      "dy": -40
+    },
+    {
+      "t": 10.239036699999815,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": -8,
+      "dy": -78
+    },
+    {
+      "t": 10.290034799999376,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": 6,
+      "dy": 96
+    },
+    {
+      "t": 10.340079699999478,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": 3,
+      "dy": 3
+    },
+    {
+      "t": 10.391013599999496,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": -4,
+      "dy": 24
+    },
+    {
+      "t": 10.441015999999763,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": 3,
+      "dy": 41
+    },
+    {
+      "t": 10.492060299999139,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": -4,
+      "dy": -23
+    },
+    {
+      "t": 10.543023499999435,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": 2,
+      "dy": 38
+    },
+    {
+      "t": 10.593987499999457,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": 0,
+      "dy": -22
+    },
+    {
+      "t": 10.645033199999489,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": 0,
+      "dy": -31
+    },
+    {
+      "t": 10.711035099999208,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": 0,
+      "dy": -8
+    },
+    {
+      "t": 10.761995299999398,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": -9,
+      "dy": -42
+    },
+    {
+      "t": 10.812033399999564,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": 9,
+      "dy": -7
+    },
+    {
+      "t": 10.8620693999992,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": -2,
+      "dy": -14
+    },
+    {
+      "t": 10.912998199999492,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": 4,
+      "dy": 59
+    },
+    {
+      "t": 10.964041899999756,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": -5,
+      "dy": 3
+    },
+    {
+      "t": 11.01496009999937,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": -73,
+      "dy": -19
+    },
+    {
+      "t": 11.065991999999824,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": -39,
+      "dy": -5
+    },
+    {
+      "t": 11.116988199999469,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": 62,
+      "dy": 36
+    },
+    {
+      "t": 11.167014599999675,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": 50,
+      "dy": 7
+    },
+    {
+      "t": 11.217992199999571,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": 25,
+      "dy": 35
+    },
+    {
+      "t": 11.268991099999766,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": 84,
+      "dy": 22
+    },
+    {
+      "t": 11.319006999999147,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": -93,
+      "dy": -75
+    },
+    {
+      "t": 11.36901299999954,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": 49,
+      "dy": -32
+    },
+    {
+      "t": 11.41906949999975,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": -11,
+      "dy": -49
+    },
+    {
+      "t": 11.469963199999256,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": -78,
+      "dy": 17
+    },
+    {
+      "t": 11.520037199999933,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": -21,
+      "dy": 21
+    },
+    {
+      "t": 11.570086299999275,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": 19,
+      "dy": 35
+    },
+    {
+      "t": 11.62095749999935,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": 4,
+      "dy": 17
+    },
+    {
+      "t": 11.67098089999945,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": 24,
+      "dy": -5
+    },
+    {
+      "t": 11.722035299999334,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": 2,
+      "dy": -4
+    },
+    {
+      "t": 11.773021299999527,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": 0,
+      "dy": -1
+    },
+    {
+      "t": 11.825063999999657,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": -1,
+      "dy": 3
+    },
+    {
+      "t": 11.87604039999951,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": 5,
+      "dy": 13
+    },
+    {
+      "t": 11.926094999999805,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": 1,
+      "dy": -2
+    },
+    {
+      "t": 11.976948300000004,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": -4,
+      "dy": -11
+    },
+    {
+      "t": 12.02703179999935,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": -1,
+      "dy": -1
+    },
+    {
+      "t": 12.079029399999854,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": 21,
+      "dy": 6
+    },
+    {
+      "t": 12.129965899999661,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": -23,
+      "dy": -7
+    },
+    {
+      "t": 12.218045199999324,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": 1,
+      "dy": 1
+    },
+    {
+      "t": 12.26903459999994,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": -1,
+      "dy": 0
+    },
+    {
+      "t": 12.320038799999566,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": 1,
+      "dy": 0
+    },
+    {
+      "t": 12.606011500000022,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": 0,
+      "dy": 1
+    },
+    {
+      "t": 12.656955399999788,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": 0,
+      "dy": -1
+    },
+    {
+      "t": 12.853075099999842,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": 1,
+      "dy": -1
+    },
+    {
+      "t": 13.017068499999368,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": -1,
+      "dy": 0
+    },
+    {
+      "t": 13.076050799999393,
+      "type": "move",
+      "action": "move",
+      "code": "",
+      "window": "Minecraft 26.2 - Singleplayer",
+      "dx": 0,
+      "dy": 1
+    }
+  ]
+}

@@ -15,22 +15,33 @@ from macrologger.player import (
 
 
 class FakeBackend:
-    """Records the pydirectinput calls the player would have made."""
+    """Records calls, mirroring the real pydirectinput signatures.
+
+    ``mouseDown``/``mouseUp`` take ``x`` first and ``button`` third, so a
+    positionally-passed button lands in ``x`` and is treated as a coordinate.
+    The fakes reproduce that trap deliberately.
+    """
 
     def __init__(self):
         self.calls = []
+        self.moved = []
 
-    def keyDown(self, key):
+    def keyDown(self, key, logScreenshot=None, _pause=True):
         self.calls.append(("keyDown", key))
 
-    def keyUp(self, key):
+    def keyUp(self, key, logScreenshot=None, _pause=True):
         self.calls.append(("keyUp", key))
 
-    def mouseDown(self, button):
-        self.calls.append(("mouseDown", button))
+    def mouseDown(self, x=None, y=None, button="primary", **kwargs):
+        self._record_mouse("mouseDown", x, y, button)
 
-    def mouseUp(self, button):
-        self.calls.append(("mouseUp", button))
+    def mouseUp(self, x=None, y=None, button="primary", **kwargs):
+        self._record_mouse("mouseUp", x, y, button)
+
+    def _record_mouse(self, name, x, y, button):
+        if x is not None or y is not None:
+            self.moved.append((x, y))
+        self.calls.append((name, button))
 
 
 class FakeSleep:
@@ -112,6 +123,30 @@ def test_backend_is_called_in_recorded_order():
         ("mouseUp", "right"),
         ("keyUp", "w"),
     ]
+
+
+def test_clicks_pass_the_button_by_keyword_not_as_a_coordinate():
+    """pydirectinput's first positional parameter is x, not button."""
+    backend = FakeBackend()
+
+    make_player(backend=backend).play(
+        [
+            MacroEvent(0.0, "click", "down", "right", ""),
+            MacroEvent(0.1, "click", "up", "right", ""),
+        ]
+    )
+
+    assert backend.calls == [("mouseDown", "right"), ("mouseUp", "right")]
+
+
+def test_replay_never_moves_the_mouse():
+    backend = FakeBackend()
+
+    make_player(backend=backend).play(
+        [MacroEvent(0.0, "click", "down", "left", "")]
+    )
+
+    assert backend.moved == []
 
 
 def test_empty_event_list_is_a_no_op():

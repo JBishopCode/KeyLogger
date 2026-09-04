@@ -90,11 +90,22 @@ continuing to the next milestone.
 
 ### Result
 
-| Date | Minecraft version | Outcome |
+| Date | Step | Outcome |
 |---|---|---|
-| _pending_ | _pending_ | **NOT YET RUN** — needs a human at a machine with Minecraft Java focused. |
+| 2026-09-04 | Record (steps 1–4) | **PASS** — 130 events captured to `macros/demo.json` with Minecraft Java focused. |
+| 2026-09-04 | Replay (steps 5–6) | **PENDING RE-RUN** — first attempt crashed before any click was sent (see below); fixed, awaiting a repeat run. |
 
-Fill this in after running the steps above.
+Replay crash, 2026-09-04: `pydirectinput.mouseDown` takes `x` as its first positional
+parameter and `button` third, so passing the button positionally made the library treat
+`"right"` as an X coordinate and call `moveTo`, raising
+`TypeError: unsupported operand type(s) for //: 'str' and 'int'`. The player now binds
+mouse buttons by keyword (`mouseDown(button=...)`) with `x`/`y` left as `None`, so no
+pointer movement is emitted. Regression tests:
+`test_clicks_pass_the_button_by_keyword_not_as_a_coordinate` and
+`test_replay_never_moves_the_mouse` in `tests/test_player_timing.py`.
+
+Whether Minecraft Java actually registers replayed input is still unproven — the run never
+reached a click. Re-run steps 5–6 and record the outcome here.
 
 ## Windows Defender / SmartScreen
 

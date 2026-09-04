@@ -11,6 +11,7 @@ import logging
 import string
 import time
 from collections.abc import Callable, Sequence
+from functools import partial
 from typing import Protocol
 
 from .events import MacroEvent
@@ -19,15 +20,20 @@ logger = logging.getLogger(__name__)
 
 
 class InputBackend(Protocol):
-    """The slice of ``pydirectinput`` the player uses."""
+    """The slice of ``pydirectinput`` the player uses.
+
+    The mouse calls take ``x``/``y`` first, so ``button`` must always be passed
+    by keyword — positionally it is read as a screen coordinate and the pointer
+    gets moved, which this tool never does.
+    """
 
     def keyDown(self, key: str) -> object: ...  # noqa: N802 - pydirectinput's name
 
     def keyUp(self, key: str) -> object: ...  # noqa: N802
 
-    def mouseDown(self, button: str) -> object: ...  # noqa: N802
+    def mouseDown(self, *, button: str) -> object: ...  # noqa: N802
 
-    def mouseUp(self, button: str) -> object: ...  # noqa: N802
+    def mouseUp(self, *, button: str) -> object: ...  # noqa: N802
 
 
 class UnknownCodeError(Exception):
@@ -135,20 +141,24 @@ class Player:
         logger.info("replaying %d event(s)", len(events))
         started = self._clock()
         previous_t = events[0].t
-        for index, (event, (send, target)) in enumerate(zip(events, plan, strict=True)):
+        for index, (event, send) in enumerate(zip(events, plan, strict=True)):
             if index:
                 self._sleep(max(0.0, event.t - previous_t))
             previous_t = event.t
             logger.debug("replaying %s %s %s", event.type, event.action, event.code)
-            send(target)
+            send()
         logger.info("replay finished in %.3fs", self._clock() - started)
 
-    def _resolve(self, event: MacroEvent) -> tuple[Callable[[str], object], str]:
-        """Pick the backend call and argument for ``event``."""
+    def _resolve(self, event: MacroEvent) -> Callable[[], object]:
+        """Bind the backend call for ``event`` into a zero-argument callable.
+
+        Mouse buttons are bound by keyword: ``mouseDown``/``mouseUp`` take
+        ``x`` first, so a positional button would be treated as a coordinate.
+        """
         if event.type == "key":
-            down, up = self._backend.keyDown, self._backend.keyUp
-            target = code_to_key(event.code)
-        else:
-            down, up = self._backend.mouseDown, self._backend.mouseUp
-            target = code_to_button(event.code)
-        return (down if event.action == "down" else up), target
+            key = code_to_key(event.code)
+            send = self._backend.keyDown if event.action == "down" else self._backend.keyUp
+            return partial(send, key)
+        button = code_to_button(event.code)
+        send = self._backend.mouseDown if event.action == "down" else self._backend.mouseUp
+        return partial(send, button=button)

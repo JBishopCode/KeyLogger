@@ -1,0 +1,916 @@
+{
+  "name": "demo",
+  "created": "2026-09-04T05:42:43Z",
+  "events": [
+    {
+      "t": 0.0,
+      "type": "click",
+      "action": "down",
+      "code": "left",
+      "window": "pyvenv.cfg - KeyLogger - Visual Studio Code"
+    },
+    {
+      "t": 0.12195129999963683,
+      "type": "click",
+      "action": "up",
+      "code": "left",
+      "window": ""
+    },
+    {
+      "t": 4.869725599997764,
+      "type": "click",
+      "action": "down",
+      "code": "left",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 4.977891499998805,
+      "type": "click",
+      "action": "up",
+      "code": "left",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 5.905187199998181,
+      "type": "key",
+      "action": "down",
+      "code": "w",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 6.1332354999976815,
+      "type": "key",
+      "action": "up",
+      "code": "w",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 6.817835999998351,
+      "type": "click",
+      "action": "down",
+      "code": "left",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 7.2859107999975095,
+      "type": "click",
+      "action": "up",
+      "code": "left",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 7.407080799999676,
+      "type": "key",
+      "action": "down",
+      "code": "d",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 7.549157099998411,
+      "type": "key",
+      "action": "up",
+      "code": "d",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 7.695775199998025,
+      "type": "click",
+      "action": "down",
+      "code": "left",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 8.2399347999999,
+      "type": "click",
+      "action": "up",
+      "code": "left",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 8.282238399999187,
+      "type": "key",
+      "action": "down",
+      "code": "a",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 8.552838799998426,
+      "type": "click",
+      "action": "down",
+      "code": "left",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 8.562072000000626,
+      "type": "key",
+      "action": "up",
+      "code": "a",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 8.735785799999576,
+      "type": "key",
+      "action": "down",
+      "code": "a",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 8.96578469999804,
+      "type": "key",
+      "action": "up",
+      "code": "a",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 8.993847499998083,
+      "type": "click",
+      "action": "up",
+      "code": "left",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 9.332184599999891,
+      "type": "key",
+      "action": "down",
+      "code": "a",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 9.417834899999434,
+      "type": "click",
+      "action": "down",
+      "code": "left",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 9.512018800000078,
+      "type": "key",
+      "action": "up",
+      "code": "a",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 10.074906800000463,
+      "type": "key",
+      "action": "down",
+      "code": "d",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 10.269148700001097,
+      "type": "key",
+      "action": "up",
+      "code": "d",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 11.105860100000427,
+      "type": "click",
+      "action": "up",
+      "code": "left",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 11.143043100000796,
+      "type": "key",
+      "action": "down",
+      "code": "a",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 11.387846900001023,
+      "type": "click",
+      "action": "down",
+      "code": "left",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 11.542039699997986,
+      "type": "key",
+      "action": "up",
+      "code": "a",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 11.553939999997965,
+      "type": "key",
+      "action": "down",
+      "code": "s",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 11.757901999997557,
+      "type": "key",
+      "action": "up",
+      "code": "s",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 12.384926399998221,
+      "type": "key",
+      "action": "down",
+      "code": "w",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 12.440010999998776,
+      "type": "key",
+      "action": "up",
+      "code": "w",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 12.623832799999946,
+      "type": "key",
+      "action": "down",
+      "code": "a",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 13.13759890000074,
+      "type": "key",
+      "action": "down",
+      "code": "a",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 13.169272499999352,
+      "type": "key",
+      "action": "down",
+      "code": "a",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 13.201258299999608,
+      "type": "key",
+      "action": "down",
+      "code": "a",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 13.23249289999876,
+      "type": "key",
+      "action": "down",
+      "code": "a",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 13.264636500000051,
+      "type": "key",
+      "action": "down",
+      "code": "a",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 13.295257899997523,
+      "type": "key",
+      "action": "down",
+      "code": "a",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 13.326948199999606,
+      "type": "key",
+      "action": "down",
+      "code": "a",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 13.358552699999564,
+      "type": "key",
+      "action": "down",
+      "code": "a",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 13.388957700000901,
+      "type": "key",
+      "action": "down",
+      "code": "a",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 13.420950399999128,
+      "type": "key",
+      "action": "down",
+      "code": "a",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 13.467425599999842,
+      "type": "key",
+      "action": "down",
+      "code": "a",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 13.498838399998931,
+      "type": "key",
+      "action": "down",
+      "code": "a",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 13.530016400000022,
+      "type": "key",
+      "action": "down",
+      "code": "a",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 13.561244699998497,
+      "type": "key",
+      "action": "down",
+      "code": "a",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 13.592753699998866,
+      "type": "key",
+      "action": "down",
+      "code": "a",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 13.623407399998541,
+      "type": "key",
+      "action": "down",
+      "code": "a",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 13.6541842000006,
+      "type": "key",
+      "action": "down",
+      "code": "a",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 13.685535699998582,
+      "type": "key",
+      "action": "down",
+      "code": "a",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 13.732156999998551,
+      "type": "key",
+      "action": "down",
+      "code": "a",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 13.762871399998403,
+      "type": "key",
+      "action": "down",
+      "code": "a",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 13.794516800000565,
+      "type": "key",
+      "action": "down",
+      "code": "a",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 13.82519339999999,
+      "type": "key",
+      "action": "down",
+      "code": "a",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 13.856717099999514,
+      "type": "key",
+      "action": "down",
+      "code": "a",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 13.88771049999923,
+      "type": "key",
+      "action": "down",
+      "code": "a",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 13.918880299999728,
+      "type": "key",
+      "action": "down",
+      "code": "a",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 13.949541599999066,
+      "type": "key",
+      "action": "down",
+      "code": "a",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 13.99772369999846,
+      "type": "key",
+      "action": "down",
+      "code": "a",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 14.040086400000291,
+      "type": "key",
+      "action": "down",
+      "code": "a",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 14.195418499999505,
+      "type": "click",
+      "action": "up",
+      "code": "left",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 14.195890599999984,
+      "type": "key",
+      "action": "up",
+      "code": "a",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 15.215140500000416,
+      "type": "key",
+      "action": "down",
+      "code": "a",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 15.760717000001023,
+      "type": "key",
+      "action": "down",
+      "code": "a",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 15.792674699998315,
+      "type": "key",
+      "action": "down",
+      "code": "a",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 15.824207699999533,
+      "type": "key",
+      "action": "down",
+      "code": "a",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 15.855695099999139,
+      "type": "key",
+      "action": "down",
+      "code": "a",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 15.882633000001078,
+      "type": "key",
+      "action": "down",
+      "code": "a",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 16.17573849999826,
+      "type": "key",
+      "action": "up",
+      "code": "a",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 16.29544619999797,
+      "type": "key",
+      "action": "down",
+      "code": "w",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 16.684711399997468,
+      "type": "key",
+      "action": "down",
+      "code": "w",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 16.715853400000924,
+      "type": "key",
+      "action": "up",
+      "code": "w",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 16.958772999998473,
+      "type": "click",
+      "action": "down",
+      "code": "left",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 16.975131600000168,
+      "type": "key",
+      "action": "down",
+      "code": "d",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 17.48182959999758,
+      "type": "key",
+      "action": "down",
+      "code": "d",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 17.512328500000876,
+      "type": "key",
+      "action": "down",
+      "code": "d",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 17.543861399997695,
+      "type": "key",
+      "action": "down",
+      "code": "d",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 17.574289000000135,
+      "type": "key",
+      "action": "down",
+      "code": "d",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 17.621193999999377,
+      "type": "key",
+      "action": "down",
+      "code": "d",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 17.651984500000253,
+      "type": "key",
+      "action": "down",
+      "code": "d",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 17.68296679999912,
+      "type": "key",
+      "action": "down",
+      "code": "d",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 17.713484699997935,
+      "type": "key",
+      "action": "down",
+      "code": "d",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 17.744954300000245,
+      "type": "key",
+      "action": "down",
+      "code": "d",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 17.77076880000095,
+      "type": "click",
+      "action": "up",
+      "code": "left",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 17.776488899999094,
+      "type": "key",
+      "action": "down",
+      "code": "d",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 17.80713470000046,
+      "type": "key",
+      "action": "down",
+      "code": "d",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 17.83488059999945,
+      "type": "click",
+      "action": "down",
+      "code": "left",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 17.839121299999533,
+      "type": "key",
+      "action": "down",
+      "code": "d",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 17.885828200000105,
+      "type": "key",
+      "action": "down",
+      "code": "d",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 17.917062599997735,
+      "type": "key",
+      "action": "down",
+      "code": "d",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 17.946864900000946,
+      "type": "click",
+      "action": "up",
+      "code": "left",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 17.948013000001083,
+      "type": "key",
+      "action": "down",
+      "code": "d",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 17.9790138999997,
+      "type": "key",
+      "action": "down",
+      "code": "d",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 18.00787859999764,
+      "type": "click",
+      "action": "down",
+      "code": "left",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 18.010019499997725,
+      "type": "key",
+      "action": "down",
+      "code": "d",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 18.04124479999882,
+      "type": "key",
+      "action": "down",
+      "code": "d",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 18.072271099998034,
+      "type": "key",
+      "action": "down",
+      "code": "d",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 18.093807400000514,
+      "type": "click",
+      "action": "up",
+      "code": "left",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 18.103567599999224,
+      "type": "key",
+      "action": "down",
+      "code": "d",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 18.13483350000024,
+      "type": "key",
+      "action": "down",
+      "code": "d",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 18.15780789999917,
+      "type": "click",
+      "action": "down",
+      "code": "left",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 18.181099800000084,
+      "type": "key",
+      "action": "down",
+      "code": "d",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 18.21244079999815,
+      "type": "key",
+      "action": "down",
+      "code": "d",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 18.243146599998,
+      "type": "key",
+      "action": "down",
+      "code": "d",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 18.271882999997615,
+      "type": "click",
+      "action": "up",
+      "code": "left",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 18.275074900000618,
+      "type": "key",
+      "action": "down",
+      "code": "d",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 18.306617499998538,
+      "type": "key",
+      "action": "down",
+      "code": "d",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 18.334765899999184,
+      "type": "key",
+      "action": "up",
+      "code": "d",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 18.599809999999707,
+      "type": "click",
+      "action": "down",
+      "code": "right",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 18.676821400000335,
+      "type": "click",
+      "action": "up",
+      "code": "right",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 18.864932799999224,
+      "type": "click",
+      "action": "down",
+      "code": "right",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 18.942794200000208,
+      "type": "click",
+      "action": "up",
+      "code": "right",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 19.076865499999258,
+      "type": "click",
+      "action": "down",
+      "code": "right",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 19.147809699999925,
+      "type": "click",
+      "action": "up",
+      "code": "right",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 19.264860100000078,
+      "type": "click",
+      "action": "down",
+      "code": "right",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 19.349812000000384,
+      "type": "click",
+      "action": "up",
+      "code": "right",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 19.458835999997973,
+      "type": "click",
+      "action": "down",
+      "code": "right",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 19.534842000000936,
+      "type": "click",
+      "action": "up",
+      "code": "right",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 19.633825299999444,
+      "type": "click",
+      "action": "down",
+      "code": "right",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 19.718869699998322,
+      "type": "click",
+      "action": "up",
+      "code": "right",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 20.067939799999294,
+      "type": "key",
+      "action": "down",
+      "code": "a",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 20.17474790000051,
+      "type": "key",
+      "action": "up",
+      "code": "a",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 20.39093529999809,
+      "type": "key",
+      "action": "down",
+      "code": "a",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 20.59576019999804,
+      "type": "key",
+      "action": "down",
+      "code": "w",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 20.682734599999094,
+      "type": "key",
+      "action": "up",
+      "code": "a",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 20.69174009999915,
+      "type": "key",
+      "action": "down",
+      "code": "d",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 21.198690199998964,
+      "type": "key",
+      "action": "down",
+      "code": "d",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 21.22856160000083,
+      "type": "key",
+      "action": "down",
+      "code": "d",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 21.251892599997518,
+      "type": "key",
+      "action": "up",
+      "code": "w",
+      "window": "Minecraft 26.2 - Singleplayer"
+    },
+    {
+      "t": 21.618889299999864,
+      "type": "key",
+      "action": "up",
+      "code": "d",
+      "window": "Minecraft 26.2 - Singleplayer"
+    }
+  ]
+}

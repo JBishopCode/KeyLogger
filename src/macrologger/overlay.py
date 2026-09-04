@@ -21,6 +21,8 @@ import logging
 from collections import deque
 from typing import Any
 
+from .backend import load_pynput
+
 logger = logging.getLogger(__name__)
 
 # Win32 extended window styles (winuser.h).
@@ -200,6 +202,58 @@ class OverlayModel:
         if status != self.status:
             self.status = status
             self._dirty = True
+
+
+CLICK_LABELS = {"left": "LMB", "right": "RMB", "middle": "MMB"}
+
+
+def click_label(code: str) -> str:
+    """Short, readable label for a mouse button."""
+    return CLICK_LABELS.get(code, code.upper())
+
+
+def attach_input_listeners(model: OverlayModel, pynput: Any = None) -> list[Any]:
+    """Start keyboard + mouse-button listeners feeding ``model``.
+
+    Mouse *movement* is deliberately not subscribed: it is out of scope, and
+    the event rate would swamp the overlay. Returns the started listeners so
+    the caller can stop them.
+    """
+    from .recorder import UnsupportedInputError, button_to_code, key_to_code
+
+    if pynput is None:
+        pynput = load_pynput()
+
+    def on_press(key: object) -> None:
+        try:
+            model.press(key_to_code(key))
+        except UnsupportedInputError:
+            logger.debug("overlay ignoring unsupported key %r", key)
+
+    def on_release(key: object) -> None:
+        try:
+            model.release(key_to_code(key))
+        except UnsupportedInputError:
+            pass
+
+    def on_click(x: int, y: int, button: object, pressed: bool) -> None:
+        try:
+            label = click_label(button_to_code(button))
+        except UnsupportedInputError:
+            logger.debug("overlay ignoring unsupported button %r", button)
+            return
+        if pressed:
+            model.press(label)
+        else:
+            model.release(label)
+
+    listeners = [
+        pynput.keyboard.Listener(on_press=on_press, on_release=on_release),
+        pynput.mouse.Listener(on_click=on_click),
+    ]
+    for listener in listeners:
+        listener.start()
+    return listeners
 
 
 class KeyOverlay:

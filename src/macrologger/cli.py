@@ -19,7 +19,7 @@ from collections.abc import Sequence
 from .backend import load_pynput
 from .events import MacroEvent, MacroSerializationError
 from .hotkey import DEFAULT_HOTKEY, HotkeyListener, InvalidHotkeyError, PlaybackToggle
-from .overlay import KeyOverlay, OverlayModel
+from .overlay import KeyOverlay, OverlayModel, attach_input_listeners
 from .player import BackendUnavailableError, Player, UnknownCodeError
 from .recorder import DEFAULT_STOP_CODE, Recorder, UnsupportedInputError, key_to_code
 from .storage import (
@@ -229,7 +229,9 @@ def _do_overlay(
     Exists so the overlay can be validated over a running Minecraft before the
     rest of the UI is built on top of it.
     """
-    keyboard = load_pynput().keyboard
+    # Resolved here so a missing backend fails fast, with a clear message,
+    # before any window is created.
+    pynput = load_pynput()
 
     model = OverlayModel()
     overlay = KeyOverlay(
@@ -240,29 +242,17 @@ def _do_overlay(
     )
     model.set_recording("overlay test")
 
-    def on_press(key: object) -> None:
-        try:
-            model.press(key_to_code(key))
-        except UnsupportedInputError:
-            pass
-
-    def on_release(key: object) -> None:
-        try:
-            model.release(key_to_code(key))
-        except UnsupportedInputError:
-            pass
-
-    print("Overlay running. Alt-tab into Minecraft and press some keys.")
-    print("It should stay on top, show your keys, and NOT take focus.")
+    print("Overlay running. Alt-tab into Minecraft and press keys or click.")
+    print("It should stay on top, show your input, and NOT take focus.")
     print("Ctrl+C here to close it.")
-    listener = keyboard.Listener(on_press=on_press, on_release=on_release)
-    listener.start()
+    listeners = attach_input_listeners(model, pynput=pynput)
     try:
         overlay.run()
     except KeyboardInterrupt:
         pass
     finally:
-        listener.stop()
+        for listener in listeners:
+            listener.stop()
         overlay.close()
     return EXIT_OK
 

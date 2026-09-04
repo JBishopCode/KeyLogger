@@ -13,7 +13,8 @@ from macrologger.overlay import (
     WS_EX_TRANSPARENT,
     OverlayModel,
     apply_overlay_styles,
-    click_through_styles,
+    overlay_styles,
+    resolve_toplevel_hwnd,
 )
 
 
@@ -35,13 +36,28 @@ class FakeWin32:
 
 
 def test_styles_make_the_window_click_through_and_non_activating():
-    styles = click_through_styles()
+    styles = overlay_styles()
 
     assert styles & WS_EX_TRANSPARENT  # clicks pass through to Minecraft
     assert styles & WS_EX_NOACTIVATE  # never steals focus from the game
-    assert styles & WS_EX_LAYERED  # required for per-window alpha
     assert styles & WS_EX_TOPMOST  # stays above the game
     assert styles & WS_EX_TOOLWINDOW  # no taskbar/alt-tab entry
+
+
+def test_styles_never_set_layered_themselves():
+    """Tk's -alpha sets WS_EX_LAYERED and its attributes together.
+
+    Adding the bit by hand without SetLayeredWindowAttributes leaves the
+    window unpainted, i.e. completely invisible.
+    """
+    assert not overlay_styles() & WS_EX_LAYERED
+
+
+def test_click_through_can_be_disabled_for_debugging():
+    styles = overlay_styles(click_through=False)
+
+    assert not styles & WS_EX_TRANSPARENT
+    assert styles & WS_EX_NOACTIVATE
 
 
 def test_apply_overlay_styles_preserves_existing_bits():
@@ -54,6 +70,41 @@ def test_apply_overlay_styles_preserves_existing_bits():
     assert index == FakeWin32.GWL_EXSTYLE
     assert value & 0x00000100
     assert value & WS_EX_NOACTIVATE
+
+
+def test_apply_overlay_styles_keeps_layered_bit_that_tk_already_set():
+    win32 = FakeWin32(existing=WS_EX_LAYERED)
+
+    apply_overlay_styles(1234, win32=win32)
+
+    _, _, value = win32.set_calls[0]
+    assert value & WS_EX_LAYERED
+
+
+def test_resolve_toplevel_hwnd_prefers_the_parent_window():
+    """Tk's winfo_id() returns a child HWND; styles must go on the parent."""
+
+    class FakeRoot:
+        def winfo_id(self):
+            return 111
+
+    class FakeUser32:
+        def GetParent(self, hwnd):
+            return 222 if hwnd == 111 else 0
+
+    assert resolve_toplevel_hwnd(FakeRoot(), user32=FakeUser32()) == 222
+
+
+def test_resolve_toplevel_hwnd_falls_back_to_the_child_when_unparented():
+    class FakeRoot:
+        def winfo_id(self):
+            return 111
+
+    class FakeUser32:
+        def GetParent(self, hwnd):
+            return 0
+
+    assert resolve_toplevel_hwnd(FakeRoot(), user32=FakeUser32()) == 111
 
 
 def test_apply_overlay_styles_is_a_no_op_without_win32():

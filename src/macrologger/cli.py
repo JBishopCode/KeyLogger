@@ -89,6 +89,16 @@ def build_parser() -> argparse.ArgumentParser:
         metavar="X,Y",
         help="screen position of the overlay (default: 24,24)",
     )
+    overlay.add_argument(
+        "--no-click-through",
+        action="store_true",
+        help="debug: keep clicks on the overlay instead of passing them through",
+    )
+    overlay.add_argument(
+        "--opaque",
+        action="store_true",
+        help="debug: disable transparency (use if the overlay is invisible)",
+    )
 
     play = subparsers.add_parser("play", help="replay a saved macro")
     play.add_argument("name", help="macro name to replay")
@@ -165,7 +175,9 @@ def _parse_position(text: str) -> tuple[int, int]:
     return x, y
 
 
-def _do_overlay(position: str) -> int:
+def _do_overlay(
+    position: str, click_through: bool = True, alpha: float = 0.85
+) -> int:
     """Overlay spike: show live keypresses over whatever is focused.
 
     Exists so the overlay can be validated over a running Minecraft before the
@@ -174,7 +186,12 @@ def _do_overlay(position: str) -> int:
     keyboard = load_pynput().keyboard
 
     model = OverlayModel()
-    overlay = KeyOverlay(model, position=_parse_position(position))
+    overlay = KeyOverlay(
+        model,
+        position=_parse_position(position),
+        alpha=alpha,
+        click_through=click_through,
+    )
     model.set_recording("overlay test")
 
     def on_press(key: object) -> None:
@@ -318,7 +335,11 @@ def main(argv: Sequence[str] | None = None) -> int:
         if args.command == "list":
             return _do_list()
         if args.command == "overlay":
-            return _do_overlay(args.position)
+            return _do_overlay(
+                args.position,
+                click_through=not args.no_click_through,
+                alpha=1.0 if args.opaque else 0.85,
+            )
         # argparse stores bare --loop as 0; the player spells "forever" as None.
         loop = None if args.loop == 0 else args.loop
         return _do_play(args.name, loop, args.loop_delay, args.jitter, args.hotkey)

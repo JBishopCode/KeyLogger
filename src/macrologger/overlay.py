@@ -39,15 +39,41 @@ REFRESH_MS = 50
 DEFAULT_MAX_CODES = 6
 
 
-def click_through_styles() -> int:
-    """Extended styles for a click-through, non-activating, topmost window."""
-    return (
-        WS_EX_LAYERED
-        | WS_EX_TRANSPARENT
-        | WS_EX_NOACTIVATE
-        | WS_EX_TOOLWINDOW
-        | WS_EX_TOPMOST
-    )
+def overlay_styles(click_through: bool = True) -> int:
+    """Extended styles for a non-activating, topmost overlay window.
+
+    Deliberately does NOT include ``WS_EX_LAYERED``: Tk's ``-alpha`` sets that
+    bit *and* the matching layered attributes together. Setting the bit alone
+    leaves the window unpainted -- known to Windows, invisible on screen.
+    """
+    styles = WS_EX_NOACTIVATE | WS_EX_TOOLWINDOW | WS_EX_TOPMOST
+    if click_through:
+        styles |= WS_EX_TRANSPARENT
+    return styles
+
+
+def resolve_toplevel_hwnd(root: Any, user32: Any = None) -> int:
+    """Return the real top-level HWND for a Tk window.
+
+    ``winfo_id()`` gives Tk's *child* window on Windows; extended styles set
+    there do not govern how the window is shown, so the parent is used when
+    one exists.
+    """
+    child = root.winfo_id()
+    api = user32
+    if api is None:
+        try:
+            import ctypes
+
+            api = ctypes.windll.user32
+        except (ImportError, AttributeError):  # pragma: no cover - non-Windows
+            return child
+    try:
+        parent = api.GetParent(child)
+    except Exception:  # noqa: BLE001 - fall back to the child window
+        logger.debug("GetParent failed; using child hwnd", exc_info=True)
+        return child
+    return parent or child
 
 
 def _load_win32() -> Any | None:
@@ -66,18 +92,23 @@ _WIN32 = _load_win32()
 _USE_DEFAULT = object()
 
 
-def apply_overlay_styles(hwnd: int, win32: Any = _USE_DEFAULT) -> bool:
-    """Make the window at ``hwnd`` click-through and non-activating.
+def apply_overlay_styles(
+    hwnd: int, win32: Any = _USE_DEFAULT, click_through: bool = True
+) -> bool:
+    """Make the window at ``hwnd`` non-activating (and optionally click-through).
 
-    Returns True if the styles were applied. A missing pywin32 is not fatal:
-    the overlay still shows, it just isn't click-through.
+    Existing bits are preserved, so the ``WS_EX_LAYERED`` flag Tk set for
+    ``-alpha`` survives. Returns True if the styles were applied; a missing
+    pywin32 is not fatal, the overlay just won't be click-through.
     """
     backend = _WIN32 if win32 is _USE_DEFAULT else win32
     if backend is None:
         return False
     try:
         existing = backend.GetWindowLong(hwnd, GWL_EXSTYLE)
-        backend.SetWindowLong(hwnd, GWL_EXSTYLE, existing | click_through_styles())
+        backend.SetWindowLong(
+            hwnd, GWL_EXSTYLE, existing | overlay_styles(click_through)
+        )
         return True
     except Exception:  # noqa: BLE001 - overlay styling must never crash playback
         logger.warning("could not apply overlay window styles", exc_info=True)
@@ -151,10 +182,13 @@ class KeyOverlay:
         model: OverlayModel,
         position: tuple[int, int] = (24, 24),
         alpha: float = 0.85,
+        click_through: bool = True,
     ) -> None:
         self.model = model
         self.position = position
         self.alpha = alpha
+        self.click_through = click_through
+        self.hwnd: int | None = None
         self._root: Any = None
         self._status_label: Any = None
         self._keys_label: Any = None
@@ -190,8 +224,24 @@ class KeyOverlay:
         )
         self._keys_label.pack(anchor="w")
 
+        # Map and lay the window out before touching Win32: the HWND is not
+        # meaningful until Tk has actually created and shown the window.
         root.update_idletasks()
-        apply_overlay_styles(root.winfo_id())
+        root.deiconify()
+        root.lift()
+        root.update()
+
+        self.hwnd = resolve_toplevel_hwnd(root)
+        applied = apply_overlay_styles(self.hwnd, click_through=self.click_through)
+        logger.info(
+            "overlay hwnd=%s size=%sx%s at %s styles_applied=%s click_through=%s",
+            self.hwnd,
+            root.winfo_width(),
+            root.winfo_height(),
+            self.position,
+            applied,
+            self.click_through,
+        )
         self._root = root
         return root
 

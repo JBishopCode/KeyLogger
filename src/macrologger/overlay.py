@@ -32,6 +32,17 @@ WS_EX_NOACTIVATE = 0x08000000
 
 GWL_EXSTYLE = -20
 
+# SetWindowPos: the WS_EX_TOPMOST style bit records intent, but only this call
+# actually moves the window into the topmost z-order band.
+HWND_TOPMOST = -1
+SWP_NOSIZE = 0x0001
+SWP_NOMOVE = 0x0002
+SWP_NOACTIVATE = 0x0010
+SWP_SHOWWINDOW = 0x0040
+
+#: A fullscreen game can push itself above us; re-assert topmost periodically.
+TOPMOST_REASSERT_MS = 2000
+
 #: How often the Tk loop checks for state changes. Repaints happen only if the
 #: model actually changed, so this tick is cheap.
 REFRESH_MS = 50
@@ -112,6 +123,27 @@ def apply_overlay_styles(
         return True
     except Exception:  # noqa: BLE001 - overlay styling must never crash playback
         logger.warning("could not apply overlay window styles", exc_info=True)
+        return False
+
+
+def raise_to_top(hwnd: int, win32: Any = _USE_DEFAULT) -> bool:
+    """Move the window into the topmost band without activating it."""
+    backend = _WIN32 if win32 is _USE_DEFAULT else win32
+    if backend is None:
+        return False
+    try:
+        backend.SetWindowPos(
+            hwnd,
+            HWND_TOPMOST,
+            0,
+            0,
+            0,
+            0,
+            SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_SHOWWINDOW,
+        )
+        return True
+    except Exception:  # noqa: BLE001 - never break playback over z-order
+        logger.warning("could not raise overlay to topmost", exc_info=True)
         return False
 
 
@@ -233,6 +265,8 @@ class KeyOverlay:
 
         self.hwnd = resolve_toplevel_hwnd(root)
         applied = apply_overlay_styles(self.hwnd, click_through=self.click_through)
+        raised = raise_to_top(self.hwnd)
+        logger.info("overlay raised to topmost: %s", raised)
         logger.info(
             "overlay hwnd=%s size=%sx%s at %s styles_applied=%s click_through=%s",
             self.hwnd,
@@ -257,11 +291,20 @@ class KeyOverlay:
             self._repaint()
         self._root.after(REFRESH_MS, self._tick)
 
+    def _reassert_topmost(self) -> None:
+        """A game going fullscreen can steal the topmost slot; take it back."""
+        if self._root is None:
+            return
+        if self.hwnd is not None:
+            raise_to_top(self.hwnd)
+        self._root.after(TOPMOST_REASSERT_MS, self._reassert_topmost)
+
     def run(self) -> None:
         """Show the overlay and block until the window is closed."""
         root = self._build()
         self._repaint()
         root.after(REFRESH_MS, self._tick)
+        root.after(TOPMOST_REASSERT_MS, self._reassert_topmost)
         logger.info("overlay started")
         root.mainloop()
 

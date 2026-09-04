@@ -99,6 +99,11 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="debug: disable transparency (use if the overlay is invisible)",
     )
+    overlay.add_argument(
+        "--diagnose",
+        action="store_true",
+        help="debug: report screen/monitor layout and the foreground window, then exit",
+    )
 
     play = subparsers.add_parser("play", help="replay a saved macro")
     play.add_argument("name", help="macro name to replay")
@@ -173,6 +178,47 @@ def _parse_position(text: str) -> tuple[int, int]:
             f"position must look like X,Y (got {text!r})"
         ) from None
     return x, y
+
+
+def _do_overlay_diagnose() -> int:
+    """Report why an overlay might be invisible: monitors, and what's focused.
+
+    Waits a few seconds so the user can alt-tab into the game first.
+    """
+    import time
+
+    import win32api
+    import win32gui
+
+    print("Alt-tab into Minecraft now; reading the screen in 5 seconds...")
+    time.sleep(5)
+
+    hwnd = win32gui.GetForegroundWindow()
+    title = win32gui.GetWindowText(hwnd)
+    rect = win32gui.GetWindowRect(hwnd)
+    print(f"\nForeground window: {title!r}")
+    print(f"  hwnd  : {hwnd}")
+    print(f"  rect  : {rect}  (left, top, right, bottom)")
+
+    monitors = win32api.EnumDisplayMonitors()
+    print(f"\nMonitors ({len(monitors)}):")
+    for index, (_, _, mrect) in enumerate(monitors, start=1):
+        print(f"  {index}: {mrect}")
+
+    virtual = (
+        win32api.GetSystemMetrics(76),  # SM_XVIRTUALSCREEN
+        win32api.GetSystemMetrics(77),  # SM_YVIRTUALSCREEN
+        win32api.GetSystemMetrics(78),  # SM_CXVIRTUALSCREEN
+        win32api.GetSystemMetrics(79),  # SM_CYVIRTUALSCREEN
+    )
+    print(f"\nVirtual screen (x, y, w, h): {virtual}")
+    print(
+        "\nIf Minecraft's rect covers a monitor exactly with no border, it is "
+        "borderless or exclusive fullscreen.\nIf the game is on a monitor whose "
+        "rect does not contain (24, 24), the overlay is on the other screen — "
+        "rerun with --position inside the game's rect."
+    )
+    return EXIT_OK
 
 
 def _do_overlay(
@@ -335,6 +381,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         if args.command == "list":
             return _do_list()
         if args.command == "overlay":
+            if args.diagnose:
+                return _do_overlay_diagnose()
             return _do_overlay(
                 args.position,
                 click_through=not args.no_click_through,

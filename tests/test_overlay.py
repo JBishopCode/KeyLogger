@@ -6,6 +6,10 @@ No window is created: the Win32 calls are faked and the model is pure.
 import pytest
 
 from macrologger.overlay import (
+    HWND_TOPMOST,
+    SWP_NOACTIVATE,
+    SWP_NOMOVE,
+    SWP_NOSIZE,
     WS_EX_LAYERED,
     WS_EX_NOACTIVATE,
     WS_EX_TOOLWINDOW,
@@ -14,6 +18,7 @@ from macrologger.overlay import (
     OverlayModel,
     apply_overlay_styles,
     overlay_styles,
+    raise_to_top,
     resolve_toplevel_hwnd,
 )
 
@@ -79,6 +84,43 @@ def test_apply_overlay_styles_keeps_layered_bit_that_tk_already_set():
 
     _, _, value = win32.set_calls[0]
     assert value & WS_EX_LAYERED
+
+
+class FakeWin32Pos(FakeWin32):
+    """Also records SetWindowPos traffic."""
+
+    def __init__(self, existing=0):
+        super().__init__(existing)
+        self.pos_calls = []
+
+    def SetWindowPos(self, hwnd, insert_after, x, y, cx, cy, flags):
+        self.pos_calls.append((hwnd, insert_after, x, y, cx, cy, flags))
+
+
+def test_raise_to_top_actually_calls_setwindowpos():
+    """The WS_EX_TOPMOST style bit alone does NOT change z-order."""
+    win32 = FakeWin32Pos()
+
+    assert raise_to_top(4242, win32=win32) is True
+
+    hwnd, insert_after, _, _, _, _, flags = win32.pos_calls[0]
+    assert hwnd == 4242
+    assert insert_after == HWND_TOPMOST
+    assert flags & SWP_NOMOVE
+    assert flags & SWP_NOSIZE
+    assert flags & SWP_NOACTIVATE  # must not steal focus from the game
+
+
+def test_raise_to_top_is_a_no_op_without_win32():
+    assert raise_to_top(4242, win32=None) is False
+
+
+def test_raise_to_top_survives_win32_errors():
+    class Exploding(FakeWin32Pos):
+        def SetWindowPos(self, *args):
+            raise OSError("nope")
+
+    assert raise_to_top(4242, win32=Exploding()) is False
 
 
 def test_resolve_toplevel_hwnd_prefers_the_parent_window():

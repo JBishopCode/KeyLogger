@@ -56,7 +56,7 @@ def test_play_replays_the_saved_events(macros_dir, monkeypatch):
     monkeypatch.setattr(cli, "Player", FakePlayer)
     save_macro("demo", sample_events(), macros_dir=macros_dir)
 
-    assert cli.main(["play", "demo"]) == 0
+    assert cli.main(["play", "demo", "--delay", "0"]) == 0
     assert FakePlayer.played == sample_events()
 
 
@@ -64,7 +64,7 @@ def test_play_defaults_to_a_single_pass_without_jitter(macros_dir, monkeypatch):
     monkeypatch.setattr(cli, "Player", FakePlayer)
     save_macro("demo", sample_events(), macros_dir=macros_dir)
 
-    cli.main(["play", "demo"])
+    cli.main(["play", "demo", "--delay", "0"])
 
     assert FakePlayer.options == {"loop": 1, "loop_delay": 0.0, "jitter": 0.0}
 
@@ -73,7 +73,7 @@ def test_loop_count_and_jitter_flags_reach_the_player(macros_dir, monkeypatch):
     monkeypatch.setattr(cli, "Player", FakePlayer)
     save_macro("demo", sample_events(), macros_dir=macros_dir)
 
-    cli.main(["play", "demo", "--loop", "4", "--loop-delay", "2.5", "--jitter", "0.1"])
+    cli.main(["play", "demo", "--delay", "0", "--loop", "4", "--loop-delay", "2.5", "--jitter", "0.1"])
 
     assert FakePlayer.options == {"loop": 4, "loop_delay": 2.5, "jitter": 0.1}
 
@@ -115,8 +115,57 @@ def test_invalid_hotkey_exits_non_zero_with_a_message(macros_dir, capsys):
     assert "nope" in capsys.readouterr().err
 
 
+def test_play_waits_before_starting_so_you_can_alt_tab(macros_dir, monkeypatch):
+    slept = []
+    monkeypatch.setattr(cli, "Player", FakePlayer)
+    monkeypatch.setattr(cli.time, "sleep", lambda s: slept.append(s))
+    save_macro("demo", sample_events(), macros_dir=macros_dir)
+
+    cli.main(["play", "demo"])
+
+    assert sum(slept) >= 3  # default grace period, in seconds
+
+
+def test_start_delay_is_configurable(macros_dir, monkeypatch):
+    slept = []
+    monkeypatch.setattr(cli, "Player", FakePlayer)
+    monkeypatch.setattr(cli.time, "sleep", lambda s: slept.append(s))
+    save_macro("demo", sample_events(), macros_dir=macros_dir)
+
+    cli.main(["play", "demo", "--delay", "7"])
+
+    assert sum(slept) == 7
+
+
+def test_zero_delay_starts_immediately(macros_dir, monkeypatch):
+    slept = []
+    monkeypatch.setattr(cli, "Player", FakePlayer)
+    monkeypatch.setattr(cli.time, "sleep", lambda s: slept.append(s))
+    save_macro("demo", sample_events(), macros_dir=macros_dir)
+
+    cli.main(["play", "demo", "--delay", "0"])
+
+    assert slept == []
+
+
+def test_hotkey_playback_does_not_add_a_start_delay(macros_dir, monkeypatch):
+    """The hotkey press IS the go signal; a countdown would fight it."""
+    slept = []
+    captured = {}
+    monkeypatch.setattr(cli.time, "sleep", lambda s: slept.append(s))
+    monkeypatch.setattr(
+        cli, "_play_with_hotkey", lambda *a, **k: captured.setdefault("ran", True) or 0
+    )
+    save_macro("demo", sample_events(), macros_dir=macros_dir)
+
+    cli.main(["play", "demo", "--hotkey"])
+
+    assert captured["ran"] is True
+    assert slept == []
+
+
 def test_play_missing_macro_exits_non_zero_with_a_message(macros_dir, capsys):
-    exit_code = cli.main(["play", "nope"])
+    exit_code = cli.main(["play", "nope", "--delay", "0"])
 
     assert exit_code != 0
     assert "nope" in capsys.readouterr().err
@@ -135,7 +184,7 @@ def test_play_unknown_code_exits_non_zero_with_a_message(
     monkeypatch.setattr(cli, "Player", ExplodingPlayer)
     save_macro("demo", sample_events(), macros_dir=macros_dir)
 
-    exit_code = cli.main(["play", "demo"])
+    exit_code = cli.main(["play", "demo", "--delay", "0"])
 
     assert exit_code != 0
     assert "nope" in capsys.readouterr().err
@@ -191,7 +240,7 @@ def test_missing_input_backend_exits_non_zero_with_a_message(
     monkeypatch.setattr(cli, "Player", no_backend)
     save_macro("demo", sample_events(), macros_dir=macros_dir)
 
-    exit_code = cli.main(["play", "demo"])
+    exit_code = cli.main(["play", "demo", "--delay", "0"])
 
     assert exit_code != 0
     assert "pydirectinput" in capsys.readouterr().err

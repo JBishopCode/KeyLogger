@@ -14,6 +14,7 @@ from collections.abc import Callable
 
 from .backend import load_pynput
 from .events import MacroEvent
+from .rawinput import RawMouseListener
 from .window import get_active_window_title
 
 logger = logging.getLogger(__name__)
@@ -230,6 +231,24 @@ class Recorder:
         self._safe_append_move(now)
         return None
 
+    def _on_raw_move(self, dx: int, dy: int) -> None:
+        """Accept a true device delta from Raw Input.
+
+        Preferred over :meth:`_on_move`: cursor-position deltas are useless in
+        a game that recentres the cursor every frame.
+        """
+        if self.stopped or not self.record_movement:
+            return
+
+        now = self._clock()
+        self._pending_dx += dx
+        self._pending_dy += dy
+        if now - self._last_move_sample < self.move_interval:
+            return
+        if not (self._pending_dx or self._pending_dy):
+            return
+        self._safe_append_move(now)
+
     def _safe_append_move(self, now: float) -> None:
         dx, dy = self._pending_dx, self._pending_dy
         self._pending_dx = self._pending_dy = 0
@@ -249,12 +268,20 @@ class Recorder:
             self.stop_code,
             "on" if self.record_movement else "off",
         )
-        # Only subscribe to movement when asked: the callback fires constantly.
-        mouse_kwargs: dict[str, Callable[..., object]] = {"on_click": self._on_click}
-        if self.record_movement:
-            mouse_kwargs["on_move"] = self._on_move
-        mouse_listener = mouse.Listener(**mouse_kwargs)
+        mouse_listener = mouse.Listener(on_click=self._on_click)
         mouse_listener.start()
+
+        # Movement comes from Raw Input, not pynput: Minecraft recentres the
+        # cursor, so cursor-position deltas describe the recentring instead of
+        # the player's hand.
+        raw_listener = None
+        if self.record_movement:
+            raw_listener = RawMouseListener(on_move=self._on_raw_move)
+            raw_listener.start()
+            if not raw_listener.running:
+                logger.warning(
+                    "raw mouse input unavailable; movement will not be recorded"
+                )
         try:
             with keyboard.Listener(
                 on_press=self._on_key_press, on_release=self._on_key_release
@@ -262,5 +289,7 @@ class Recorder:
                 keyboard_listener.join()
         finally:
             mouse_listener.stop()
+            if raw_listener is not None:
+                raw_listener.stop()
         logger.info("recording stopped; %d event(s) captured", len(self.events))
         return self.events

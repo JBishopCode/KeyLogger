@@ -14,6 +14,7 @@ import argparse
 import logging
 import sys
 import threading
+import time
 from collections.abc import Sequence
 
 from .backend import load_pynput
@@ -57,6 +58,10 @@ EXIT_ERROR = 1
 
 #: How long to wait for the playback thread to notice a stop request.
 WORKER_JOIN_TIMEOUT = 5.0
+
+#: Grace period before immediate playback, so the user can alt-tab into the
+#: game. Not used with --hotkey, where the keypress is the go signal.
+DEFAULT_START_DELAY = 3.0
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -122,6 +127,17 @@ def build_parser() -> argparse.ArgumentParser:
 
     play = subparsers.add_parser("play", help="replay a saved macro")
     play.add_argument("name", help="macro name to replay")
+    play.add_argument(
+        "--delay",
+        type=float,
+        default=DEFAULT_START_DELAY,
+        metavar="SECONDS",
+        help=(
+            "grace period before playback starts, to alt-tab into the game "
+            f"(default: {DEFAULT_START_DELAY:g}; 0 starts immediately). "
+            "Ignored with --hotkey."
+        ),
+    )
     play.add_argument(
         "--loop",
         nargs="?",
@@ -284,6 +300,21 @@ def _do_overlay(
     return EXIT_OK
 
 
+def _countdown(seconds: float) -> None:
+    """Give the user time to alt-tab into the game before input starts."""
+    if seconds <= 0:
+        return
+    print(f"Alt-tab into Minecraft now - starting in {seconds:g}s...")
+    whole = int(seconds)
+    for remaining in range(whole, 0, -1):
+        print(f"  {remaining}...", flush=True)
+        time.sleep(1)
+    leftover = seconds - whole
+    if leftover > 0:
+        time.sleep(leftover)
+    print("Go.")
+
+
 def _describe_loop(loop: int | None) -> str:
     if loop is None:
         return "looping until stopped"
@@ -296,6 +327,7 @@ def _do_play(
     loop_delay: float,
     jitter: float,
     hotkey: str | None,
+    delay: float = DEFAULT_START_DELAY,
 ) -> int:
     if loop is None and hotkey is None:
         print(
@@ -308,7 +340,8 @@ def _do_play(
     summary = f"'{name}' ({len(events)} event(s)), {_describe_loop(loop)}"
 
     if hotkey is None:
-        print(f"Replaying {summary}. Focus Minecraft now.")
+        print(f"Replaying {summary}.")
+        _countdown(delay)
         Player().play(events, loop=loop, loop_delay=loop_delay, jitter=jitter)
         print("Replay finished.")
         return EXIT_OK
@@ -412,7 +445,14 @@ def main(argv: Sequence[str] | None = None) -> int:
             )
         # argparse stores bare --loop as 0; the player spells "forever" as None.
         loop = None if args.loop == 0 else args.loop
-        return _do_play(args.name, loop, args.loop_delay, args.jitter, args.hotkey)
+        return _do_play(
+            args.name,
+            loop,
+            args.loop_delay,
+            args.jitter,
+            args.hotkey,
+            delay=args.delay,
+        )
     except CORE_ERRORS as exc:
         print(f"error: {exc}", file=sys.stderr)
         return EXIT_ERROR

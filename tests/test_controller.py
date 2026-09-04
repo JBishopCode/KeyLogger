@@ -185,6 +185,44 @@ def test_toggle_starts_then_stops_playback(controller, tmp_path):
     assert controller.state is AppState.IDLE
 
 
+def test_toggle_recording_starts_then_stops(controller, tmp_path):
+    """A record hotkey lets recording start while already in-game."""
+    controller.toggle_recording("demo", record_movement=False)
+    assert controller.state is AppState.RECORDING
+
+    controller.toggle_recording("demo", record_movement=False)
+    controller.wait_idle()
+
+    assert controller.state is AppState.IDLE
+    assert load_macro("demo", macros_dir=tmp_path) == sample_events()
+
+
+class BlockingPlayer:
+    """Keeps 'playing' until stopped, like a real looping macro."""
+
+    def __init__(self, stop_event=None, **kwargs):
+        self.stop_event = stop_event
+
+    def play(self, events, **kwargs):
+        while not self.stop_event.is_set():
+            threading.Event().wait(0.005)
+
+
+def test_toggle_recording_is_ignored_while_playing(tmp_path):
+    controller = AppController(
+        macros_dir=tmp_path,
+        recorder_factory=lambda **kw: FakeRecorder(**kw),
+        player_factory=lambda **kw: BlockingPlayer(**kw),
+    )
+    save_macro("demo", sample_events(), macros_dir=tmp_path)
+    controller.start_playback("demo", PlaybackOptions(loop_forever=True))
+
+    controller.toggle_recording("other", record_movement=False)
+
+    assert controller.state is AppState.PLAYING
+    controller.stop_playback()
+
+
 def test_shutdown_stops_everything(controller, tmp_path):
     save_macro("demo", sample_events(), macros_dir=tmp_path)
     controller.start_playback("demo", PlaybackOptions(loop_forever=True))

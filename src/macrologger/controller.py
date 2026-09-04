@@ -149,6 +149,19 @@ class AppController:
             self.recorder = None
             self._set_state(AppState.IDLE)
 
+    def toggle_recording(self, name: str, record_movement: bool = False) -> None:
+        """Record hotkey behaviour: start if idle, stop if already recording.
+
+        Starting from a hotkey means the user is already in the game, so the
+        alt-tab and click needed to reach the window are never captured.
+        """
+        if self.state is AppState.RECORDING:
+            self.stop_recording()
+        elif self.state is AppState.IDLE:
+            self.start_recording(name, record_movement=record_movement)
+        else:
+            logger.info("ignoring record toggle while %s", self.state.value)
+
     def stop_recording(self) -> None:
         recorder = self.recorder
         if recorder is not None:

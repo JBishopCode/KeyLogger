@@ -40,10 +40,35 @@ FONT = "Segoe UI"
 MONO = "Consolas"
 
 STATE_LABELS = {
-    AppState.IDLE: ("Idle", DARK["muted"]),
-    AppState.RECORDING: ("Recording", DARK["danger"]),
-    AppState.PLAYING: ("Playing", DARK["accent"]),
+    AppState.IDLE: ("IDLE", DARK["muted"]),
+    AppState.RECORDING: ("REC", DARK["danger"]),
+    AppState.PLAYING: ("PLAYING", DARK["accent"]),
 }
+
+DEFAULT_RECORD_HOTKEY = "f9"
+DEFAULT_PLAY_HOTKEY = DEFAULT_HOTKEY
+
+
+def format_macro_row(summary: Any) -> str:
+    """One line of the macro list. The name comes first so it can be parsed back."""
+    return (
+        f"{summary.name:<18} {summary.event_count:>5} ev  "
+        f"{summary.duration:>6.1f}s  {summary.window[:26]}"
+    )
+
+
+def macro_name_from_row(row: str) -> str:
+    return row.split()[0]
+
+
+def index_of_macro(summaries: list[Any], name: str | None) -> int | None:
+    """Position of ``name`` in the list, or None if it is absent."""
+    if name is None:
+        return None
+    for index, summary in enumerate(summaries):
+        if summary.name == name:
+            return index
+    return None
 
 
 class ControlWindow:
@@ -55,8 +80,10 @@ class ControlWindow:
         macros_dir: Path | str = DEFAULT_MACROS_DIR,
     ) -> None:
         self.controller = controller or AppController(macros_dir=macros_dir)
-        self.hotkey_spec = DEFAULT_HOTKEY
-        self._hotkey_listener: HotkeyListener | None = None
+        self.play_hotkey = DEFAULT_PLAY_HOTKEY
+        self.record_hotkey = DEFAULT_RECORD_HOTKEY
+        self._listeners: dict[str, HotkeyListener] = {}
+        self._last_selected: str | None = None
         self._overlay: KeyOverlay | None = None
         self.overlay_model = OverlayModel()
         # Worker threads post state changes here; the Tk loop drains it, since
@@ -112,7 +139,7 @@ class ControlWindow:
             "Title.TLabel",
             background=DARK["bg"],
             foreground=DARK["text"],
-            font=(FONT, 16, "bold"),
+            font=(FONT, 15, "bold"),
         )
         style.configure(
             "Status.TLabel",
@@ -154,17 +181,48 @@ class ControlWindow:
             insertcolor=DARK["text"],
             padding=8,
         )
+        style.configure(
+            "TScale",
+            background=DARK["bg"],
+            troughcolor=DARK["panel_alt"],
+            bordercolor=DARK["border"],
+            lightcolor=DARK["accent_dim"],
+            darkcolor=DARK["accent_dim"],
+        )
 
     def _build_header(self, ttk: Any, parent: Any) -> None:
+        import tkinter as tk
+
         header = ttk.Frame(parent, style="App.TFrame")
-        header.pack(fill="x", pady=(0, 16))
-        ttk.Label(header, text="Macro Logger", style="Title.TLabel").pack(side="left")
-        status = ttk.Label(header, text="Idle", style="Status.TLabel")
+        header.pack(fill="x")
+
+        title_row = ttk.Frame(header, style="App.TFrame")
+        title_row.pack(fill="x")
+        ttk.Label(title_row, text="MACRO LOGGER", style="Title.TLabel").pack(
+            side="left"
+        )
+        status = ttk.Label(title_row, text="IDLE", style="Status.TLabel")
         status.pack(side="right")
         self._widgets["status"] = status
 
+        # A thin accent rule under the title: cheap, and it makes the window
+        # read as designed rather than default.
+        rule = tk.Frame(header, height=2, bg=DARK["accent_dim"])
+        rule.pack(fill="x", pady=(8, 0))
+
+        ttk.Label(
+            header,
+            text="Record and replay keyboard, clicks and mouse look",
+            style="Muted.TLabel",
+        ).pack(anchor="w", pady=(8, 16))
+
     def _build_library(self, tk: Any, ttk: Any, parent: Any) -> None:
-        ttk.Label(parent, text="MACROS", style="Muted.TLabel").pack(anchor="w")
+        label_row = ttk.Frame(parent, style="App.TFrame")
+        label_row.pack(fill="x")
+        ttk.Label(label_row, text="MACROS", style="Muted.TLabel").pack(side="left")
+        count = ttk.Label(label_row, text="", style="Muted.TLabel")
+        count.pack(side="right")
+        self._widgets["count"] = count
         listbox = tk.Listbox(
             parent,
             height=8,
@@ -216,10 +274,28 @@ class ControlWindow:
         self._widgets["loop_var"] = loop_var
 
         jitter_var = tk.BooleanVar(value=False)
-        ttk.Checkbutton(options, text="Jitter", variable=jitter_var).pack(
-            side="left", padx=(16, 0)
-        )
+        ttk.Checkbutton(
+            options,
+            text="Jitter",
+            variable=jitter_var,
+            command=self._update_jitter_label,
+        ).pack(side="left", padx=(16, 0))
         self._widgets["jitter_var"] = jitter_var
+
+        jitter_amount = tk.IntVar(value=10)
+        scale = ttk.Scale(
+            options,
+            from_=2,
+            to=40,
+            variable=jitter_amount,
+            command=lambda _: self._update_jitter_label(),
+            length=110,
+        )
+        scale.pack(side="left", padx=(10, 6))
+        self._widgets["jitter_amount"] = jitter_amount
+        jitter_label = ttk.Label(options, text="+/-5%", style="Muted.TLabel")
+        jitter_label.pack(side="left")
+        self._widgets["jitter_label"] = jitter_label
 
         overlay_var = tk.BooleanVar(value=False)
         ttk.Checkbutton(
@@ -227,17 +303,40 @@ class ControlWindow:
         ).pack(side="left", padx=(16, 0))
         self._widgets["overlay_var"] = overlay_var
 
-        hotkey_row = ttk.Frame(parent, style="App.TFrame")
-        hotkey_row.pack(fill="x", pady=(12, 0))
-        ttk.Label(hotkey_row, text="Hotkey").pack(side="left")
-        hotkey_var = tk.StringVar(value=self.hotkey_spec)
-        ttk.Entry(hotkey_row, textvariable=hotkey_var, width=14).pack(
-            side="left", padx=(10, 0)
+        hotkeys = ttk.Frame(parent, style="App.TFrame")
+        hotkeys.pack(fill="x", pady=(14, 0))
+
+        play_var = tk.StringVar(value=self.play_hotkey)
+        ttk.Label(hotkeys, text="Play hotkey").grid(row=0, column=0, sticky="w")
+        ttk.Entry(hotkeys, textvariable=play_var, width=12).grid(
+            row=0, column=1, padx=(10, 6)
         )
-        ttk.Button(hotkey_row, text="Bind", command=self.on_bind_hotkey).pack(
-            side="left", padx=(8, 0)
+        ttk.Button(
+            hotkeys, text="Bind", width=6, command=lambda: self.on_bind("play")
+        ).grid(row=0, column=2)
+        self._widgets["play_hotkey_var"] = play_var
+
+        record_var = tk.StringVar(value=self.record_hotkey)
+        ttk.Label(hotkeys, text="Record hotkey").grid(
+            row=1, column=0, sticky="w", pady=(8, 0)
         )
-        self._widgets["hotkey_var"] = hotkey_var
+        ttk.Entry(hotkeys, textvariable=record_var, width=12).grid(
+            row=1, column=1, padx=(10, 6), pady=(8, 0)
+        )
+        ttk.Button(
+            hotkeys, text="Bind", width=6, command=lambda: self.on_bind("record")
+        ).grid(row=1, column=2, pady=(8, 0))
+        self._widgets["record_hotkey_var"] = record_var
+
+        ttk.Label(
+            parent,
+            text=(
+                "Tip: bind the record hotkey, then start recording from inside "
+                "the game so alt-tabbing is not captured."
+            ),
+            style="Muted.TLabel",
+            wraplength=520,
+        ).pack(anchor="w", pady=(10, 0))
 
         buttons = ttk.Frame(parent, style="App.TFrame")
         buttons.pack(fill="x", pady=(16, 0))
@@ -258,11 +357,17 @@ class ControlWindow:
     # -- helpers -------------------------------------------------------
 
     def selected_macro(self) -> str | None:
-        listbox = self._widgets["listbox"]
+        listbox = self._widgets.get("listbox")
+        if listbox is None:
+            return None
         selection = listbox.curselection()
         if not selection:
-            return None
-        return listbox.get(selection[0]).split()[0]
+            # Fall back to the remembered name so a hotkey still works after a
+            # refresh, even if the widget lost its highlight.
+            return self._last_selected
+        name = macro_name_from_row(listbox.get(selection[0]))
+        self._last_selected = name
+        return name
 
     def set_message(self, text: str, error: bool = False) -> None:
         widget = self._widgets.get("message")
@@ -273,21 +378,39 @@ class ControlWindow:
         logger.info("ui: %s", text)
 
     def refresh_library(self) -> None:
+        """Redraw the list, keeping whatever was selected still selected.
+
+        Losing the selection after every playback would mean re-picking the
+        macro before the hotkey could fire again.
+        """
         listbox = self._widgets.get("listbox")
         if listbox is None:
             return
+        previous = self.selected_macro() or self._last_selected
+        summaries = self.controller.list_macros()
+
         listbox.delete(0, "end")
-        for summary in self.controller.list_macros():
-            listbox.insert(
-                "end",
-                f"{summary.name:<18} {summary.event_count:>5} ev  "
-                f"{summary.duration:>6.1f}s  {summary.window[:28]}",
-            )
+        for summary in summaries:
+            listbox.insert("end", format_macro_row(summary))
+
+        index = index_of_macro(summaries, previous)
+        if index is not None:
+            listbox.selection_clear(0, "end")
+            listbox.selection_set(index)
+            listbox.activate(index)
+            self._last_selected = previous
+
+        count = len(summaries)
+        counter = self._widgets.get("count")
+        if counter is not None:
+            counter.configure(text=f"{count} macro{'' if count == 1 else 's'}")
 
     def playback_options(self) -> PlaybackOptions:
+        jitter = 0.0
+        if self._widgets["jitter_var"].get():
+            jitter = int(self._widgets["jitter_amount"].get()) / 100
         return PlaybackOptions(
-            loop_forever=bool(self._widgets["loop_var"].get()),
-            jitter=0.1 if self._widgets["jitter_var"].get() else 0.0,
+            loop_forever=bool(self._widgets["loop_var"].get()), jitter=jitter
         )
 
     # -- actions -------------------------------------------------------
@@ -327,32 +450,62 @@ class ControlWindow:
         else:
             self.controller.stop_playback()
 
-    def on_bind_hotkey(self) -> None:
-        spec = self._widgets["hotkey_var"].get().strip()
+    def on_bind(self, kind: str) -> None:
+        """Bind either the play or the record hotkey."""
+        spec = self._widgets[f"{kind}_hotkey_var"].get().strip()
+        callback = self._on_play_hotkey if kind == "play" else self._on_record_hotkey
         try:
-            self._start_hotkey(spec)
+            self._start_hotkey(kind, spec, callback)
         except InvalidHotkeyError as exc:
             self.set_message(str(exc), error=True)
             return
-        self.hotkey_spec = spec
-        self.set_message(f"Hotkey {spec} starts and stops playback.")
+        if kind == "play":
+            self.play_hotkey = spec
+            self.set_message(f"{spec.upper()} starts and stops playback.")
+        else:
+            self.record_hotkey = spec
+            self.set_message(f"{spec.upper()} starts and stops recording.")
 
-    def _start_hotkey(self, spec: str) -> None:
-        if self._hotkey_listener is not None:
-            self._hotkey_listener.__exit__()
-            self._hotkey_listener = None
-        listener = HotkeyListener(spec, self._on_hotkey)
+    def _start_hotkey(self, kind: str, spec: str, callback: Any) -> None:
+        existing = self._listeners.pop(kind, None)
+        if existing is not None:
+            existing.__exit__()
+        listener = HotkeyListener(spec, callback)
         listener.__enter__()
-        self._hotkey_listener = listener
+        self._listeners[kind] = listener
 
-    def _on_hotkey(self) -> None:
+    def _on_play_hotkey(self) -> None:
         name = self.selected_macro()
         if name is None:
+            self.set_message("Select a macro before using the play hotkey.", error=True)
             return
         try:
             self.controller.toggle_playback(name, self.playback_options())
         except Exception:  # noqa: BLE001 - hotkey thread must never die
-            logger.exception("hotkey toggle failed")
+            logger.exception("play hotkey failed")
+
+    def _on_record_hotkey(self) -> None:
+        name = self._widgets["name_var"].get().strip()
+        if not name:
+            self.set_message("Type a macro name before using the record hotkey.", True)
+            return
+        try:
+            self.controller.toggle_recording(
+                name, record_movement=bool(self._widgets["movement_var"].get())
+            )
+        except Exception:  # noqa: BLE001 - hotkey thread must never die
+            logger.exception("record hotkey failed")
+
+    def _update_jitter_label(self) -> None:
+        label = self._widgets.get("jitter_label")
+        if label is None:
+            return
+        if not self._widgets["jitter_var"].get():
+            label.configure(text="off")
+            return
+        amount = int(self._widgets["jitter_amount"].get())
+        # jitter=0.1 means each gap varies by +/-5%, so show the half-range.
+        label.configure(text=f"+/-{amount / 2:g}%")
 
     def on_overlay(self) -> None:
         if self._widgets["overlay_var"].get():
@@ -397,9 +550,9 @@ class ControlWindow:
 
     def close(self) -> None:
         self.controller.shutdown()
-        if self._hotkey_listener is not None:
-            self._hotkey_listener.__exit__()
-            self._hotkey_listener = None
+        for listener in self._listeners.values():
+            listener.__exit__()
+        self._listeners.clear()
         self._close_overlay()
         if self.root is not None:
             self.root.destroy()

@@ -117,6 +117,38 @@ in exclusive fullscreen Windows will not composite another window over the game.
 |---|---|
 | _pending_ | **NOT YET RUN over Minecraft** — window styles verified programmatically (NOACTIVATE / TRANSPARENT / LAYERED / TOOLWINDOW all set), but on-screen behaviour over the game is unconfirmed. |
 
+## Control window
+
+```powershell
+python -m macrologger.cli gui
+```
+
+- **Macro list** — every saved macro with its event count, duration and the
+  window it was recorded in. Select one to play it.
+- **Name + Record** — type a name, hit Record; the button becomes Stop (ESC
+  still works too).
+- **Record mouse movement** — the opt-in movement toggle.
+- **Loop / Jitter / Overlay** — playback options.
+- **Hotkey** — type a combination (e.g. `f8`, `ctrl+shift+p`) and press Bind;
+  it then starts and stops playback of the selected macro from anywhere.
+
+The CLI commands all still work and are unchanged.
+
+## Required for accurate mouse movement
+
+**Turn OFF Windows "Enhance pointer precision".**
+Settings → Bluetooth & devices → Mouse → Additional mouse settings → Pointer
+Options → untick *Enhance pointer precision*.
+
+That setting applies a non-linear acceleration curve to injected mouse input,
+so a replayed movement rotates the camera by a different amount than when it
+was recorded — the macro traces the right shape but ends on a different
+heading. With it off, movement replays accurately (verified in-game
+2026-09-04).
+
+Key and click macros are unaffected; this only matters when recording with
+`--mouse-movement`.
+
 ## Tests
 
 ```bash

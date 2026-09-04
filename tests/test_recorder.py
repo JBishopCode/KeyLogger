@@ -219,6 +219,32 @@ def test_record_stops_mouse_listener_even_when_keyboard_listener_raises(monkeypa
     assert log[-1] == "mouse.stop"
 
 
+def test_request_stop_ends_recording_without_the_stop_key():
+    """The UI needs a Stop button, not just the sentinel key."""
+    recorder = make_recorder([1.0])
+
+    recorder.request_stop()
+
+    assert recorder.stopped is True
+
+
+def test_request_stop_before_recording_starts_is_harmless():
+    recorder = make_recorder([1.0])
+
+    recorder.request_stop()  # no listeners exist yet
+
+    assert recorder.stopped is True
+
+
+def test_events_are_ignored_after_request_stop():
+    recorder = make_recorder([1.0, 1.5])
+    recorder.request_stop()
+
+    recorder._on_key_press(FakeKey(char="w"))
+
+    assert recorder.events == []
+
+
 def test_key_to_code_maps_letters_digits_specials_and_modifiers():
     assert key_to_code(FakeKey(char="w")) == "w"
     assert key_to_code(FakeKey(char="W")) == "w"

@@ -106,6 +106,8 @@ def build_parser() -> argparse.ArgumentParser:
         ),
     )
 
+    subparsers.add_parser("gui", help="open the control window")
+
     subparsers.add_parser("list", help="list the macros in the library")
 
     inspect = subparsers.add_parser(
@@ -504,6 +506,11 @@ def main(argv: Sequence[str] | None = None) -> int:
                 record_movement=args.mouse_movement,
                 move_interval=args.move_interval,
             )
+        if args.command == "gui":
+            from .ui import run_app
+
+            run_app(macros_dir=DEFAULT_MACROS_DIR)
+            return EXIT_OK
         if args.command == "list":
             return _do_list()
         if args.command == "inspect":

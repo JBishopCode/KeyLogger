@@ -309,18 +309,53 @@ def test_inspect_summarizes_event_types_and_movement(macros_dir, capsys):
     assert "16" in out  # total |dx| travelled: 10 + 6
 
 
-def test_inspect_reports_the_sampling_rate(macros_dir, capsys):
-    """Rate is the diagnostic for choppy replay."""
+def test_inspect_reports_the_rate_while_actually_moving(macros_dir, capsys):
+    """Idle time must not drag the reported rate down.
+
+    Two bursts sampled 8ms apart, separated by a 10s pause: the average over
+    the whole macro is meaningless, the rate during motion is ~125Hz.
+    """
     events = [
-        MacroEvent(0.0, "move", "move", "", "", 1, 0),
-        MacroEvent(0.5, "move", "move", "", "", 1, 0),
-        MacroEvent(1.0, "move", "move", "", "", 1, 0),
+        MacroEvent(0.000, "move", "move", "", "", 1, 0),
+        MacroEvent(0.008, "move", "move", "", "", 1, 0),
+        MacroEvent(0.016, "move", "move", "", "", 1, 0),
+        MacroEvent(10.016, "move", "move", "", "", 1, 0),
+        MacroEvent(10.024, "move", "move", "", "", 1, 0),
     ]
-    save_macro("slow", events, macros_dir=macros_dir)
+    save_macro("bursty", events, macros_dir=macros_dir)
 
-    cli.main(["inspect", "slow"])
+    cli.main(["inspect", "bursty"])
 
-    assert "Hz" in capsys.readouterr().out
+    out = capsys.readouterr().out
+    assert "125 Hz" in out  # while moving, not 0.5Hz averaged over the pause
+
+
+def test_inspect_does_not_warn_about_a_well_sampled_macro(macros_dir, capsys):
+    """A fast flick produces a big step legitimately; that is not a fault."""
+    events = [
+        MacroEvent(0.000, "move", "move", "", "", 180, 0),
+        MacroEvent(0.008, "move", "move", "", "", 150, 0),
+        MacroEvent(0.016, "move", "move", "", "", 120, 0),
+    ]
+    save_macro("flick", events, macros_dir=macros_dir)
+
+    cli.main(["inspect", "flick"])
+
+    assert "NOTE" not in capsys.readouterr().out
+
+
+def test_inspect_warns_when_samples_are_too_far_apart(macros_dir, capsys):
+    """Coarse spacing IS the fault: deltas got merged."""
+    events = [
+        MacroEvent(0.00, "move", "move", "", "", 200, 0),
+        MacroEvent(0.10, "move", "move", "", "", 200, 0),
+        MacroEvent(0.20, "move", "move", "", "", 200, 0),
+    ]
+    save_macro("coarse", events, macros_dir=macros_dir)
+
+    cli.main(["inspect", "coarse"])
+
+    assert "NOTE" in capsys.readouterr().out
 
 
 def test_inspect_missing_macro_exits_non_zero(macros_dir, capsys):

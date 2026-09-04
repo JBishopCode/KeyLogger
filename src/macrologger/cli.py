@@ -64,6 +64,14 @@ WORKER_JOIN_TIMEOUT = 5.0
 #: game. Not used with --hotkey, where the keypress is the go signal.
 DEFAULT_START_DELAY = 3.0
 
+#: Gaps longer than this separate bursts of movement rather than samples
+#: within one, so they are excluded from the sampling-rate figure.
+MOVE_BURST_GAP = 0.2
+
+#: Median sample gap above which deltas are being merged (2x the ~125Hz
+#: default, i.e. samples are arriving at least half as often as requested).
+UNDERSAMPLED_GAP = 0.016
+
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
@@ -327,17 +335,39 @@ def _do_inspect(name: str) -> int:
         total_dx = sum(abs(event.dx) for event in moves)
         total_dy = sum(abs(event.dy) for event in moves)
         biggest = max(max(abs(e.dx), abs(e.dy)) for e in moves)
-        rate = len(moves) / duration if duration else 0.0
         print(f"  movement : {total_dx} px horizontal, {total_dy} px vertical")
-        print(f"  net drift: dx={sum(e.dx for e in moves)}, dy={sum(e.dy for e in moves)}")
-        print(f"  sampling : {rate:.0f} Hz, largest single step {biggest} px")
-        if biggest > 40:
+        print(
+            f"  net drift: dx={sum(e.dx for e in moves)}, "
+            f"dy={sum(e.dy for e in moves)}"
+        )
+
+        # Rate while actually moving. Averaging over the whole macro is
+        # meaningless: sampling only happens when the mouse reports, so idle
+        # stretches drag the figure down and hide the real cadence.
+        gaps = sorted(
+            b.t - a.t
+            for a, b in zip(moves, moves[1:], strict=False)
+            if 0 < b.t - a.t <= MOVE_BURST_GAP
+        )
+        if gaps:
+            median_gap = gaps[len(gaps) // 2]
             print(
-                "  NOTE: large steps replay differently to the small ones they "
-                "were merged from (Windows pointer acceleration is non-linear), "
-                "so the camera can end up on a different heading. Re-record with "
-                "a smaller --move-interval."
+                f"  sampling : {1 / median_gap:.0f} Hz while moving, "
+                f"largest single step {biggest} px"
             )
+            # Big steps from a fast flick are legitimate; steps that are big
+            # *because samples are far apart* are merged deltas, which is what
+            # sends the camera off-heading.
+            if median_gap > UNDERSAMPLED_GAP and biggest > 40:
+                print(
+                    "  NOTE: samples are further apart than requested, so "
+                    "deltas were merged. Windows pointer acceleration scales "
+                    "one big jump differently to the small moves it replaced, "
+                    "so the camera can end on a different heading. Re-record "
+                    "with a smaller --move-interval."
+                )
+        else:
+            print(f"  sampling : single burst, largest step {biggest} px")
     return EXIT_OK
 
 

@@ -16,6 +16,7 @@ import sys
 import threading
 from collections.abc import Sequence
 
+from .backend import load_pynput
 from .events import MacroEvent, MacroSerializationError
 from .hotkey import DEFAULT_HOTKEY, HotkeyListener, InvalidHotkeyError, PlaybackToggle
 from .overlay import KeyOverlay, OverlayModel
@@ -170,7 +171,7 @@ def _do_overlay(position: str) -> int:
     Exists so the overlay can be validated over a running Minecraft before the
     rest of the UI is built on top of it.
     """
-    from pynput import keyboard
+    keyboard = load_pynput().keyboard
 
     model = OverlayModel()
     overlay = KeyOverlay(model, position=_parse_position(position))

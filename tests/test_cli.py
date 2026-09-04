@@ -216,6 +216,33 @@ def test_list_on_an_empty_library_says_so(macros_dir, capsys):
     assert "no macros" in capsys.readouterr().out.lower()
 
 
+def test_missing_pynput_exits_with_advice_not_a_traceback(
+    macros_dir, monkeypatch, capsys
+):
+    """Running with the wrong Python must not dump a ModuleNotFoundError."""
+
+    def no_pynput():
+        raise BackendUnavailableError(
+            "pynput is not installed; run: pip install -r requirements.txt"
+        )
+
+    monkeypatch.setattr(cli, "load_pynput", no_pynput)
+
+    exit_code = cli.main(["overlay"])
+
+    err = capsys.readouterr().err
+    assert exit_code != 0
+    assert "pip install" in err
+    assert "Traceback" not in err
+
+
+def test_bad_overlay_position_exits_non_zero(macros_dir, capsys):
+    exit_code = cli.main(["overlay", "--position", "middle"])
+
+    assert exit_code != 0
+    assert "X,Y" in capsys.readouterr().err
+
+
 def test_unknown_command_exits_non_zero(macros_dir):
     with pytest.raises(SystemExit) as excinfo:
         cli.main(["frobnicate", "demo"])

@@ -12,6 +12,7 @@ import threading
 import time
 from collections.abc import Callable
 
+from .backend import load_pynput
 from .events import MacroEvent
 from .window import get_active_window_title
 
@@ -173,7 +174,8 @@ class Recorder:
 
     def record(self) -> list[MacroEvent]:
         """Block until the stop key is pressed, then return the recorded events."""
-        from pynput import keyboard, mouse  # lazy: needs a real input backend
+        pynput = load_pynput()  # lazy: needs a real input backend
+        keyboard, mouse = pynput.keyboard, pynput.mouse
 
         logger.info("recording started; press %r to stop", self.stop_code)
         mouse_listener = mouse.Listener(on_click=self._on_click)

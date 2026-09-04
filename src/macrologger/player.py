@@ -16,9 +16,19 @@ from collections.abc import Callable, Sequence
 from functools import partial
 from typing import Protocol
 
+from .backend import BackendUnavailableError, load_pydirectinput
 from .events import MacroEvent
 
 logger = logging.getLogger(__name__)
+
+# Re-exported so callers can keep importing it from here.
+__all__ = [
+    "BackendUnavailableError",
+    "Player",
+    "UnknownCodeError",
+    "code_to_button",
+    "code_to_key",
+]
 
 
 class InputBackend(Protocol):
@@ -52,10 +62,6 @@ class StopSignal(Protocol):
 
 class UnknownCodeError(Exception):
     """Raised when a recorded code has no DirectInput equivalent."""
-
-
-class BackendUnavailableError(Exception):
-    """Raised when the DirectInput backend cannot be loaded."""
 
 
 # Central code -> pydirectinput key mapping. Recorded codes are produced by
@@ -111,19 +117,7 @@ def code_to_button(code: str) -> str:
 
 
 def _load_default_backend() -> InputBackend:
-    try:
-        import pydirectinput  # lazy: Windows-only, not needed for unit tests
-    except ImportError as exc:
-        raise BackendUnavailableError(
-            "pydirectinput is not installed or not usable on this Python; "
-            "run: pip install -r requirements.txt"
-        ) from exc
-
-    # Minecraft needs every event at the recorded time; the library's built-in
-    # pause and corner failsafe would distort the gaps, so both are disabled.
-    pydirectinput.PAUSE = 0
-    pydirectinput.FAILSAFE = False
-    return pydirectinput
+    return load_pydirectinput()
 
 
 class _HeldInput:

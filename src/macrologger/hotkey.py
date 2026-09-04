@@ -13,6 +13,8 @@ import string
 import threading
 from collections.abc import Callable
 
+from .backend import load_pynput
+
 logger = logging.getLogger(__name__)
 
 DEFAULT_HOTKEY = "f8"
@@ -127,7 +129,7 @@ class HotkeyListener:
         self._listener = None
 
     def __enter__(self) -> HotkeyListener:
-        from pynput import keyboard  # lazy: needs a real input backend
+        keyboard = load_pynput().keyboard  # lazy: needs a real input backend
 
         logger.info("listening for hotkey %s", self.spec)
         self._listener = keyboard.GlobalHotKeys({self._combination: self._on_press})

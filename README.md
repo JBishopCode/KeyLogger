@@ -17,23 +17,28 @@ network calls and sends no data anywhere.
 
 ## Setup
 
-```bash
+This project uses a `src/` layout, so set `PYTHONPATH` to `src` before running the CLI from the repo root:
+
+```powershell
 python -m venv .venv
-.venv\Scripts\activate
+.\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
+$env:PYTHONPATH = "src"
 ```
 
 ## Usage
 
 Record — press **Esc** to stop:
 
-```bash
+```powershell
+$env:PYTHONPATH = "src"
 python -m macrologger.cli record demo
 ```
 
 Replay:
 
-```bash
+```powershell
+$env:PYTHONPATH = "src"
 python -m macrologger.cli play demo
 ```
 
@@ -71,12 +76,12 @@ The load-bearing check for this milestone — does `pydirectinput` actually reac
 
 1. Launch Minecraft Java and load a world (a private/single-player world is recommended;
    see the server-rules note below).
-2. In a terminal, run `python -m macrologger.cli record demo`.
+2. In a terminal, run `python -m macrologger.cli record demo` after setting `PYTHONPATH=src`.
 3. Alt-tab into Minecraft, hold **W** for about a second, then **right-click** once.
 4. Alt-tab back to the terminal and press **Esc** to stop. Confirm the printed event count
    and inspect `macros/demo.json` — the `window` field should read as the Minecraft window.
-5. Run `python -m macrologger.cli play demo`, then alt-tab into Minecraft before playback
-   reaches the first event.
+5. Run `python -m macrologger.cli play demo` after setting `PYTHONPATH=src`, then alt-tab into
+   Minecraft before playback reaches the first event.
 6. PASS = the character visibly walks forward and the right-click registers in-game.
 
 If nothing registers in-game, **stop** — do not swap libraries silently. The documented

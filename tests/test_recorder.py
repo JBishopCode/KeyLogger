@@ -89,10 +89,15 @@ def test_click_press_and_release_are_recorded():
     ]
 
 
-def test_mouse_movement_is_not_recorded():
-    recorder = make_recorder([1.0])
+def test_mouse_movement_is_not_recorded_by_default():
+    """Movement is opt-in; a default recording contains no move events."""
+    recorder = make_recorder([1.0, 1.1, 1.2])
 
-    assert not hasattr(recorder, "_on_move")
+    recorder._on_move(100, 100)
+    recorder._on_move(200, 200)
+
+    assert recorder.record_movement is False
+    assert recorder.events == []
 
 
 def test_stop_key_stops_recording_and_is_not_recorded():

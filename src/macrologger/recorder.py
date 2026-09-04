@@ -20,6 +20,11 @@ logger = logging.getLogger(__name__)
 
 DEFAULT_STOP_CODE = "esc"
 
+#: Minimum seconds between recorded movement samples. Raw pynput movement
+#: fires hundreds of times a second; 20 Hz is smooth on replay and keeps macro
+#: files small.
+DEFAULT_MOVE_INTERVAL = 0.05
+
 BUTTON_CODES = ("left", "right", "middle")
 
 # pynput special-key names that map onto our own key vocabulary. Anything not
@@ -93,33 +98,54 @@ class Recorder:
         clock: Callable[[], float] = time.perf_counter,
         window_provider: Callable[[], str] = get_active_window_title,
         stop_code: str = DEFAULT_STOP_CODE,
+        record_movement: bool = False,
+        move_interval: float = DEFAULT_MOVE_INTERVAL,
     ) -> None:
         self._clock = clock
         self._window_provider = window_provider
         self.stop_code = stop_code
+        self.record_movement = record_movement
+        self.move_interval = move_interval
         self.events: list[MacroEvent] = []
         self.stopped = False
         self._origin: float | None = None
+        self._last_position: tuple[int, int] | None = None
+        self._last_move_sample: float = 0.0
+        self._pending_dx = 0
+        self._pending_dy = 0
         # The keyboard and mouse listeners run on separate threads, so the
         # check-then-set of the time origin must not race.
         self._lock = threading.Lock()
 
     def _elapsed(self) -> float:
         """Seconds since the first recorded event (the first call returns 0.0)."""
-        now = self._clock()
+        return self._elapsed_at(self._clock())
+
+    def _elapsed_at(self, now: float) -> float:
+        """As :meth:`_elapsed`, for a timestamp the caller already read."""
         with self._lock:
             if self._origin is None:
                 self._origin = now
                 return 0.0
             return now - self._origin
 
-    def _append(self, event_type: str, action: str, code: str) -> None:
+    def _append(
+        self,
+        event_type: str,
+        action: str,
+        code: str,
+        dx: int = 0,
+        dy: int = 0,
+        now: float | None = None,
+    ) -> None:
         event = MacroEvent(
-            t=self._elapsed(),
+            t=self._elapsed() if now is None else self._elapsed_at(now),
             type=event_type,
             action=action,
             code=code,
             window=self._window_provider(),
+            dx=dx,
+            dy=dy,
         )
         self.events.append(event)
         logger.debug(
@@ -172,13 +198,62 @@ class Recorder:
         self._safe_append("click", "down" if pressed else "up", code)
         return None
 
+    def _on_move(self, x: int, y: int) -> bool | None:
+        """Sample cursor movement as a relative delta, if movement is enabled.
+
+        Minecraft traps the cursor for camera control, so absolute positions
+        are meaningless on replay — only deltas are. Samples faster than
+        ``move_interval`` are accumulated rather than dropped, so no distance
+        is lost.
+        """
+        if self.stopped:
+            return False
+        if not self.record_movement:
+            return None
+
+        now = self._clock()
+        if self._last_position is None:
+            self._last_position = (x, y)
+            self._last_move_sample = now
+            return None
+
+        last_x, last_y = self._last_position
+        self._last_position = (x, y)
+        self._pending_dx += x - last_x
+        self._pending_dy += y - last_y
+
+        if now - self._last_move_sample < self.move_interval:
+            return None
+        if not (self._pending_dx or self._pending_dy):
+            return None
+
+        self._safe_append_move(now)
+        return None
+
+    def _safe_append_move(self, now: float) -> None:
+        dx, dy = self._pending_dx, self._pending_dy
+        self._pending_dx = self._pending_dy = 0
+        self._last_move_sample = now
+        try:
+            self._append("move", "move", "", dx=dx, dy=dy, now=now)
+        except Exception:  # noqa: BLE001 - never kill the listener thread
+            logger.exception("failed to record movement %s,%s", dx, dy)
+
     def record(self) -> list[MacroEvent]:
         """Block until the stop key is pressed, then return the recorded events."""
         pynput = load_pynput()  # lazy: needs a real input backend
         keyboard, mouse = pynput.keyboard, pynput.mouse
 
-        logger.info("recording started; press %r to stop", self.stop_code)
-        mouse_listener = mouse.Listener(on_click=self._on_click)
+        logger.info(
+            "recording started; press %r to stop (movement: %s)",
+            self.stop_code,
+            "on" if self.record_movement else "off",
+        )
+        # Only subscribe to movement when asked: the callback fires constantly.
+        mouse_kwargs: dict[str, Callable[..., object]] = {"on_click": self._on_click}
+        if self.record_movement:
+            mouse_kwargs["on_move"] = self._on_move
+        mouse_listener = mouse.Listener(**mouse_kwargs)
         mouse_listener.start()
         try:
             with keyboard.Listener(

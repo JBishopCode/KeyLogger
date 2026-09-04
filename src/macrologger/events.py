@@ -21,9 +21,15 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Any
 
-EVENT_TYPES = ("key", "click")
-EVENT_ACTIONS = ("down", "up")
+#: Current macro schema version. v1 had no "move" events and no dx/dy.
+SCHEMA_VERSION = 2
+
+EVENT_TYPES = ("key", "click", "move")
+EVENT_ACTIONS = ("down", "up", "move")
 EVENT_FIELDS = ("t", "type", "action", "code", "window")
+
+#: Optional fields, absent in v1 macros.
+EVENT_DELTA_FIELDS = ("dx", "dy")
 
 
 class MacroSerializationError(Exception):
@@ -47,23 +53,37 @@ class MacroEvent:
     action: str
     code: str
     window: str
+    dx: int = 0
+    dy: int = 0
 
     def __post_init__(self) -> None:
         if self.type not in EVENT_TYPES:
             raise ValueError(f"unknown event type: {self.type!r}")
         if self.action not in EVENT_ACTIONS:
             raise ValueError(f"unknown event action: {self.action!r}")
+        # "move" pairs with "move"; key/click pair with down/up. Mixing them
+        # would produce events no player could dispatch.
+        if (self.type == "move") != (self.action == "move"):
+            raise ValueError(
+                f"invalid {self.type!r} event with action {self.action!r}"
+            )
         # Normalize so a round trip through JSON is value-identical.
         object.__setattr__(self, "t", float(self.t))
 
     def to_dict(self) -> dict[str, Any]:
-        return {
+        payload = {
             "t": self.t,
             "type": self.type,
             "action": self.action,
             "code": self.code,
             "window": self.window,
         }
+        # Only movement carries deltas; keeping them off key/click events keeps
+        # macro files readable and diffable.
+        if self.type == "move":
+            payload["dx"] = self.dx
+            payload["dy"] = self.dy
+        return payload
 
     @classmethod
     def from_dict(cls, data: Any) -> MacroEvent:
@@ -83,6 +103,8 @@ class MacroEvent:
                 action=data["action"],
                 code=str(data["code"]),
                 window=str(data["window"]),
+                dx=int(data.get("dx", 0)),
+                dy=int(data.get("dy", 0)),
             )
         except (TypeError, ValueError) as exc:
             raise MacroSerializationError(f"invalid event {data!r}: {exc}") from exc
@@ -100,6 +122,7 @@ def events_to_dict(
     return {
         "name": name,
         "created": created or utc_now_iso(),
+        "version": SCHEMA_VERSION,
         "events": [event.to_dict() for event in events],
     }
 

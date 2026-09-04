@@ -78,6 +78,64 @@ def test_from_dict_rejects_missing_event_field():
         events_from_dict(payload)
 
 
+def test_move_events_carry_relative_deltas():
+    event = MacroEvent(
+        t=0.5, type="move", action="move", code="", window="", dx=12, dy=-4
+    )
+
+    assert (event.dx, event.dy) == (12, -4)
+
+
+def test_move_events_round_trip():
+    events = [MacroEvent(0.5, "move", "move", "", "", dx=12, dy=-4)]
+
+    restored = events_from_dict(events_to_dict("demo", events))
+
+    assert restored == events
+
+
+def test_move_event_serializes_deltas():
+    payload = events_to_dict("demo", [MacroEvent(0.5, "move", "move", "", "", 3, 4)])
+
+    assert payload["events"][0]["dx"] == 3
+    assert payload["events"][0]["dy"] == 4
+
+
+def test_key_events_default_to_zero_deltas():
+    event = MacroEvent(0.0, "key", "down", "w", "")
+
+    assert (event.dx, event.dy) == (0, 0)
+
+
+def test_payload_declares_the_schema_version():
+    assert events_to_dict("demo", [])["version"] == 2
+
+
+def test_version_1_macros_without_deltas_still_load():
+    """Macros recorded before mouse movement existed must keep working."""
+    payload = {
+        "name": "old",
+        "created": "2026-09-04T00:00:00Z",
+        "events": [
+            {"t": 0.0, "type": "key", "action": "down", "code": "w", "window": ""}
+        ],
+    }
+
+    restored = events_from_dict(payload)
+
+    assert restored == [MacroEvent(0.0, "key", "down", "w", "")]
+
+
+def test_move_action_must_be_move():
+    with pytest.raises(ValueError):
+        MacroEvent(0.0, "move", "down", "", "", 1, 1)
+
+
+def test_key_events_cannot_use_the_move_action():
+    with pytest.raises(ValueError):
+        MacroEvent(0.0, "key", "move", "w", "")
+
+
 def test_event_is_frozen():
     event = MacroEvent(0.0, "key", "down", "w", "")
 

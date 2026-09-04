@@ -21,7 +21,7 @@ from .events import MacroEvent, MacroSerializationError
 from .hotkey import DEFAULT_HOTKEY, HotkeyListener, InvalidHotkeyError, PlaybackToggle
 from .overlay import KeyOverlay, OverlayModel, attach_input_listeners
 from .player import BackendUnavailableError, Player, UnknownCodeError
-from .recorder import DEFAULT_STOP_CODE, Recorder, UnsupportedInputError, key_to_code
+from .recorder import DEFAULT_MOVE_INTERVAL, DEFAULT_STOP_CODE, Recorder
 from .storage import (
     DEFAULT_MACROS_DIR,
     InvalidMacroNameError,
@@ -75,6 +75,21 @@ def build_parser() -> argparse.ArgumentParser:
         "--stop-key",
         default=DEFAULT_STOP_CODE,
         help=f"key that ends recording (default: {DEFAULT_STOP_CODE})",
+    )
+    record.add_argument(
+        "--mouse-movement",
+        action="store_true",
+        help="also record mouse movement (off by default; replayed as relative motion)",
+    )
+    record.add_argument(
+        "--move-interval",
+        type=float,
+        default=DEFAULT_MOVE_INTERVAL,
+        metavar="SECONDS",
+        help=(
+            "minimum gap between movement samples "
+            f"(default: {DEFAULT_MOVE_INTERVAL}; lower is smoother but larger)"
+        ),
     )
 
     subparsers.add_parser("list", help="list the macros in the library")
@@ -145,12 +160,24 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def _do_record(name: str, stop_key: str) -> int:
-    print(f"Recording '{name}'. Press {stop_key.upper()} to stop.")
-    recorder = Recorder(stop_code=stop_key)
+def _do_record(
+    name: str,
+    stop_key: str,
+    record_movement: bool = False,
+    move_interval: float = DEFAULT_MOVE_INTERVAL,
+) -> int:
+    movement = "on" if record_movement else "off"
+    print(f"Recording '{name}' (mouse movement: {movement}).")
+    print(f"Press {stop_key.upper()} to stop.")
+    recorder = Recorder(
+        stop_code=stop_key,
+        record_movement=record_movement,
+        move_interval=move_interval,
+    )
     events = recorder.record()
     path = save_macro(name, events, macros_dir=DEFAULT_MACROS_DIR)
-    print(f"Saved {len(events)} event(s) to {path}")
+    moves = sum(1 for event in events if event.type == "move")
+    print(f"Saved {len(events)} event(s) ({moves} movement) to {path}")
     return EXIT_OK
 
 
@@ -367,7 +394,12 @@ def main(argv: Sequence[str] | None = None) -> int:
     )
     try:
         if args.command == "record":
-            return _do_record(args.name, args.stop_key)
+            return _do_record(
+                args.name,
+                args.stop_key,
+                record_movement=args.mouse_movement,
+                move_interval=args.move_interval,
+            )
         if args.command == "list":
             return _do_list()
         if args.command == "overlay":

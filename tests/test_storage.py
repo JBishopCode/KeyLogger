@@ -35,7 +35,7 @@ def test_save_writes_the_documented_schema(tmp_path):
     payload = json.loads((tmp_path / "demo.json").read_text(encoding="utf-8"))
 
     assert payload["name"] == "demo"
-    assert set(payload) == {"name", "created", "events"}
+    assert set(payload) == {"name", "created", "version", "events"}
     assert payload["events"][2] == {
         "t": 0.9,
         "type": "click",

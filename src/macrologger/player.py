@@ -47,6 +47,10 @@ class InputBackend(Protocol):
 
     def mouseUp(self, *, button: str) -> object: ...  # noqa: N802
 
+    def move(  # noqa: N803 - pydirectinput's parameter names
+        self, xOffset: int, yOffset: int, *, relative: bool
+    ) -> object: ...
+
 
 class RandomSource(Protocol):
     """The slice of ``random.Random`` used for timing jitter."""
@@ -133,6 +137,8 @@ class _HeldInput:
         self._buttons: set[str] = set()
 
     def record(self, event: MacroEvent) -> None:
+        if event.type == "move":
+            return  # movement holds nothing that needs releasing
         target = self._keys if event.type == "key" else self._buttons
         code = code_to_key(event.code) if event.type == "key" else code_to_button(event.code)
         if event.action == "down":
@@ -287,6 +293,16 @@ class Player:
         Mouse buttons are bound by keyword: ``mouseDown``/``mouseUp`` take
         ``x`` first, so a positional button would be treated as a coordinate.
         """
+        if event.type == "move":
+            move = getattr(self._backend, "move", None)
+            if move is None:
+                raise UnknownCodeError(
+                    "input backend cannot send relative mouse movement"
+                )
+            # relative=True is load-bearing: pydirectinput defaults to False,
+            # which converts the offset into an absolute target that a game
+            # with a trapped cursor ignores.
+            return partial(move, event.dx, event.dy, relative=True)
         if event.type == "key":
             key = code_to_key(event.code)
             send = self._backend.keyDown if event.action == "down" else self._backend.keyUp

@@ -61,6 +61,35 @@ def test_move_is_sent_in_relative_mode():
     assert backend.relative_flags == [True]
 
 
+def test_large_moves_are_split_into_smaller_steps():
+    """One 584px jump accelerates differently to the small moves it merged."""
+    backend = MoveBackend()
+
+    make_player(backend).play([MacroEvent(0.0, "move", "move", "", "", 50, 0)])
+
+    steps = [call for call in backend.calls if call[0] == "move"]
+    assert len(steps) > 1
+    assert all(abs(dx) <= 20 for _, dx, _ in steps)
+
+
+def test_splitting_preserves_the_total_distance():
+    backend = MoveBackend()
+
+    make_player(backend).play([MacroEvent(0.0, "move", "move", "", "", 50, -30)])
+
+    steps = [call for call in backend.calls if call[0] == "move"]
+    assert sum(dx for _, dx, _ in steps) == 50
+    assert sum(dy for _, _, dy in steps) == -30
+
+
+def test_small_moves_are_sent_as_one_step():
+    backend = MoveBackend()
+
+    make_player(backend).play([MacroEvent(0.0, "move", "move", "", "", 7, -3)])
+
+    assert backend.calls == [("move", 7, -3)]
+
+
 def test_absolute_positioning_is_never_used():
     """moveTo would fight Minecraft's trapped cursor."""
     backend = MoveBackend()

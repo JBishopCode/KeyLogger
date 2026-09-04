@@ -21,10 +21,15 @@ logger = logging.getLogger(__name__)
 
 DEFAULT_STOP_CODE = "esc"
 
-#: Minimum seconds between recorded movement samples. Raw pynput movement
-#: fires hundreds of times a second; 20 Hz is smooth on replay and keeps macro
-#: files small.
-DEFAULT_MOVE_INTERVAL = 0.05
+#: Minimum seconds between recorded movement samples (~125 Hz, matching a
+#: typical mouse polling rate).
+#:
+#: Deliberately fine-grained. Accumulating many small deltas into one large one
+#: preserves total distance but NOT the resulting camera rotation: Windows
+#: pointer ballistics scale a delta non-linearly, so one jump of 30 turns
+#: further than three of 10. Coarse sampling replays the right shape while
+#: ending on a different heading.
+DEFAULT_MOVE_INTERVAL = 0.008
 
 BUTTON_CODES = ("left", "right", "middle")
 

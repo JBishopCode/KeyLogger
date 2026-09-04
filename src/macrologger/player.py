@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import itertools
 import logging
+import math
 import random
 import string
 import time
@@ -96,6 +97,11 @@ KEY_MAP: dict[str, str] = {
     "right": "right",
     "win": "win",
 }
+
+#: Largest relative offset sent in one call. Bigger moves are split, because
+#: Windows pointer acceleration scales a single large delta differently to the
+#: sequence of small ones it represents.
+MAX_MOVE_STEP = 20
 
 BUTTON_MAP: dict[str, str] = {
     "left": "left",
@@ -287,6 +293,27 @@ class Player:
                 return False
         return True
 
+    def _send_move(self, move: Callable[..., object], dx: int, dy: int) -> None:
+        """Send a relative move, split into steps no larger than MAX_MOVE_STEP.
+
+        Windows pointer acceleration is non-linear, so one big jump rotates the
+        camera further than the many small movements it was merged from. Ten
+        steps of 20px land much closer to the original than one of 200.
+
+        ``relative=True`` is load-bearing: pydirectinput defaults to False,
+        which converts the offset into an absolute target that a game with a
+        trapped cursor ignores.
+        """
+        steps = max(1, math.ceil(max(abs(dx), abs(dy)) / MAX_MOVE_STEP))
+        sent_x = sent_y = 0
+        for step in range(1, steps + 1):
+            # Interpolate against the running total so integer rounding can
+            # never lose or gain distance overall.
+            target_x = round(dx * step / steps)
+            target_y = round(dy * step / steps)
+            move(target_x - sent_x, target_y - sent_y, relative=True)
+            sent_x, sent_y = target_x, target_y
+
     def _resolve(self, event: MacroEvent) -> Callable[[], object]:
         """Bind the backend call for ``event`` into a zero-argument callable.
 
@@ -299,10 +326,7 @@ class Player:
                 raise UnknownCodeError(
                     "input backend cannot send relative mouse movement"
                 )
-            # relative=True is load-bearing: pydirectinput defaults to False,
-            # which converts the offset into an absolute target that a game
-            # with a trapped cursor ignores.
-            return partial(move, event.dx, event.dy, relative=True)
+            return partial(self._send_move, move, event.dx, event.dy)
         if event.type == "key":
             key = code_to_key(event.code)
             send = self._backend.keyDown if event.action == "down" else self._backend.keyUp

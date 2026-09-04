@@ -292,6 +292,44 @@ def test_bad_overlay_position_exits_non_zero(macros_dir, capsys):
     assert "X,Y" in capsys.readouterr().err
 
 
+def test_inspect_summarizes_event_types_and_movement(macros_dir, capsys):
+    events = [
+        MacroEvent(0.0, "key", "down", "w", "Minecraft 1.21"),
+        MacroEvent(0.1, "move", "move", "", "Minecraft 1.21", 10, -5),
+        MacroEvent(0.2, "move", "move", "", "Minecraft 1.21", 6, 2),
+        MacroEvent(0.3, "click", "down", "right", "Minecraft 1.21"),
+    ]
+    save_macro("demo", events, macros_dir=macros_dir)
+
+    exit_code = cli.main(["inspect", "demo"])
+
+    out = capsys.readouterr().out
+    assert exit_code == 0
+    assert "2" in out  # movement event count
+    assert "16" in out  # total |dx| travelled: 10 + 6
+
+
+def test_inspect_reports_the_sampling_rate(macros_dir, capsys):
+    """Rate is the diagnostic for choppy replay."""
+    events = [
+        MacroEvent(0.0, "move", "move", "", "", 1, 0),
+        MacroEvent(0.5, "move", "move", "", "", 1, 0),
+        MacroEvent(1.0, "move", "move", "", "", 1, 0),
+    ]
+    save_macro("slow", events, macros_dir=macros_dir)
+
+    cli.main(["inspect", "slow"])
+
+    assert "Hz" in capsys.readouterr().out
+
+
+def test_inspect_missing_macro_exits_non_zero(macros_dir, capsys):
+    exit_code = cli.main(["inspect", "nope"])
+
+    assert exit_code != 0
+    assert "nope" in capsys.readouterr().err
+
+
 def test_unknown_command_exits_non_zero(macros_dir):
     with pytest.raises(SystemExit) as excinfo:
         cli.main(["frobnicate", "demo"])

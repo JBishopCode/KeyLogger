@@ -15,6 +15,7 @@ import logging
 import sys
 import threading
 import time
+from collections import Counter
 from collections.abc import Sequence
 
 from .backend import load_pynput
@@ -98,6 +99,11 @@ def build_parser() -> argparse.ArgumentParser:
     )
 
     subparsers.add_parser("list", help="list the macros in the library")
+
+    inspect = subparsers.add_parser(
+        "inspect", help="show what a macro contains (event mix, movement, rate)"
+    )
+    inspect.add_argument("name", help="macro name to inspect")
 
     overlay = subparsers.add_parser(
         "overlay",
@@ -300,6 +306,41 @@ def _do_overlay(
     return EXIT_OK
 
 
+def _do_inspect(name: str) -> int:
+    """Summarize a macro, with the numbers that explain replay fidelity."""
+    events = load_macro(name, macros_dir=DEFAULT_MACROS_DIR)
+    if not events:
+        print(f"'{name}' contains no events.")
+        return EXIT_OK
+
+    counts = Counter(event.type for event in events)
+    duration = events[-1].t - events[0].t
+    moves = [event for event in events if event.type == "move"]
+
+    print(f"Macro '{name}'")
+    print(f"  events   : {len(events)} over {duration:.2f}s")
+    for event_type in ("key", "click", "move"):
+        if counts[event_type]:
+            print(f"  {event_type + 's':9}: {counts[event_type]}")
+
+    if moves:
+        total_dx = sum(abs(event.dx) for event in moves)
+        total_dy = sum(abs(event.dy) for event in moves)
+        biggest = max(max(abs(e.dx), abs(e.dy)) for e in moves)
+        rate = len(moves) / duration if duration else 0.0
+        print(f"  movement : {total_dx} px horizontal, {total_dy} px vertical")
+        print(f"  net drift: dx={sum(e.dx for e in moves)}, dy={sum(e.dy for e in moves)}")
+        print(f"  sampling : {rate:.0f} Hz, largest single step {biggest} px")
+        if biggest > 40:
+            print(
+                "  NOTE: large steps replay differently to the small ones they "
+                "were merged from (Windows pointer acceleration is non-linear), "
+                "so the camera can end up on a different heading. Re-record with "
+                "a smaller --move-interval."
+            )
+    return EXIT_OK
+
+
 def _countdown(seconds: float) -> None:
     """Give the user time to alt-tab into the game before input starts."""
     if seconds <= 0:
@@ -435,6 +476,8 @@ def main(argv: Sequence[str] | None = None) -> int:
             )
         if args.command == "list":
             return _do_list()
+        if args.command == "inspect":
+            return _do_inspect(args.name)
         if args.command == "overlay":
             if args.diagnose:
                 return _do_overlay_diagnose()

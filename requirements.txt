@@ -1,0 +1,4 @@
+pynput==1.8.1
+pydirectinput==1.0.4
+pywin32==311
+pytest==8.4.2

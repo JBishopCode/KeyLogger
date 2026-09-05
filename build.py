@@ -41,19 +41,25 @@ def tree_size(path: Path) -> int:
     return sum(item.stat().st_size for item in path.rglob("*") if item.is_file())
 
 
-def build(onefile: bool) -> tuple[Path, float]:
-    """Run PyInstaller; returns the artifact path and how long it took."""
+def build(onefile: bool, console: bool = False) -> tuple[Path, float]:
+    """Run PyInstaller; returns the artifact path and how long it took.
+
+    Two targets get built, because one binary cannot do both jobs well on
+    Windows: a --windowed build has no console, so CLI output is invisible,
+    while a --console build flashes a terminal when double-clicked.
+    """
     shape = "--onefile" if onefile else "--onedir"
+    name = f"{APP_NAME}-cli" if console else APP_NAME
     command = [
         sys.executable,
         "-m",
         "PyInstaller",
         shape,
-        "--windowed",  # no console window when double-clicked
+        "--console" if console else "--windowed",
         "--noconfirm",
         "--clean",
         "--name",
-        APP_NAME,
+        name,
         # The package lives under src/, which is not on the path when
         # PyInstaller analyses the entry script.
         "--paths",
@@ -70,12 +76,12 @@ def build(onefile: bool) -> tuple[Path, float]:
         "pynput.mouse._win32",
         str(ENTRY),
     ]
-    print(f"\n=== building {shape} ===")
+    print(f"\n=== building {name} {shape} ===")
     started = time.perf_counter()
     subprocess.run(command, check=True, cwd=ROOT)
     elapsed = time.perf_counter() - started
 
-    artifact = ROOT / "dist" / (f"{APP_NAME}.exe" if onefile else APP_NAME)
+    artifact = ROOT / "dist" / (f"{name}.exe" if onefile else name)
     return artifact, elapsed
 
 
@@ -89,21 +95,32 @@ def main() -> int:
     shapes = [False, True] if args.both else [args.onefile]
     results = []
     for onefile in shapes:
-        artifact, elapsed = build(onefile)
-        results.append((artifact, tree_size(artifact), elapsed))
+        for console in (False, True):
+            artifact, elapsed = build(onefile, console=console)
+            results.append((artifact, tree_size(artifact), elapsed))
 
     print("\n=== result ===")
     for artifact, size, elapsed in results:
         print(f"{artifact.name:<20} {human_size(size):>10}  built in {elapsed:.0f}s")
         print(f"  {artifact}")
 
-    folder = ROOT / "dist" / APP_NAME
-    if folder.is_dir():
+    gui_folder = ROOT / "dist" / APP_NAME
+    cli_folder = ROOT / "dist" / f"{APP_NAME}-cli"
+    if gui_folder.is_dir():
+        # Put the console build inside the shared folder so one zip carries
+        # both: double-click the GUI, or run the -cli one for commands.
+        if cli_folder.is_dir():
+            for item in cli_folder.iterdir():
+                target = gui_folder / item.name
+                if item.is_file() and not target.exists():
+                    shutil.copy2(item, target)
         zipped = shutil.make_archive(
-            str(ROOT / "dist" / APP_NAME), "zip", root_dir=folder
+            str(ROOT / "dist" / APP_NAME), "zip", root_dir=gui_folder
         )
         size = human_size(Path(zipped).stat().st_size)
         print(f"\nZipped for sharing: {zipped} ({size})")
+        print(f"  double-click       : {APP_NAME}.exe")
+        print(f"  commands / doctor  : {APP_NAME}-cli.exe doctor")
     return 0
 
 

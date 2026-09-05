@@ -108,7 +108,7 @@ def test_key_events_default_to_zero_deltas():
 
 
 def test_payload_declares_the_schema_version():
-    assert events_to_dict("demo", [])["version"] == 2
+    assert events_to_dict("demo", [])["version"] == 3
 
 
 def test_version_1_macros_without_deltas_still_load():

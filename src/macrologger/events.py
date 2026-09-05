@@ -21,11 +21,16 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Any
 
-#: Current macro schema version. v1 had no "move" events and no dx/dy.
-SCHEMA_VERSION = 2
+#: Current macro schema version.
+#: v1: keys and clicks only. v2: added "move" events with dx/dy.
+#: v3: added "scroll" events, which reuse dy for wheel clicks.
+SCHEMA_VERSION = 3
 
-EVENT_TYPES = ("key", "click", "move")
-EVENT_ACTIONS = ("down", "up", "move")
+EVENT_TYPES = ("key", "click", "move", "scroll")
+EVENT_ACTIONS = ("down", "up", "move", "scroll")
+
+#: Types whose meaning lives in dx/dy rather than in ``code``.
+DELTA_TYPES = ("move", "scroll")
 EVENT_FIELDS = ("t", "type", "action", "code", "window")
 
 #: Optional fields, absent in v1 macros.
@@ -61,12 +66,12 @@ class MacroEvent:
             raise ValueError(f"unknown event type: {self.type!r}")
         if self.action not in EVENT_ACTIONS:
             raise ValueError(f"unknown event action: {self.action!r}")
-        # "move" pairs with "move"; key/click pair with down/up. Mixing them
-        # would produce events no player could dispatch.
-        if (self.type == "move") != (self.action == "move"):
-            raise ValueError(
-                f"invalid {self.type!r} event with action {self.action!r}"
-            )
+        # Each delta type pairs with its own action name; key/click pair with
+        # down/up. Mixing them would produce events no player could dispatch.
+        if (self.type in DELTA_TYPES or self.action in DELTA_TYPES) and (
+            self.type != self.action
+        ):
+            raise ValueError(f"invalid {self.type!r} event with action {self.action!r}")
         # Normalize so a round trip through JSON is value-identical.
         object.__setattr__(self, "t", float(self.t))
 
@@ -80,7 +85,7 @@ class MacroEvent:
         }
         # Only movement carries deltas; keeping them off key/click events keeps
         # macro files readable and diffable.
-        if self.type == "move":
+        if self.type in DELTA_TYPES:
             payload["dx"] = self.dx
             payload["dy"] = self.dy
         return payload

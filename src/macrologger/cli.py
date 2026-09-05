@@ -384,7 +384,7 @@ def _do_inspect(name: str) -> int:
 
     print(f"Macro '{name}'")
     print(f"  events   : {len(events)} over {duration:.2f}s")
-    for event_type in ("key", "click", "move"):
+    for event_type in ("key", "click", "move", "scroll"):
         if counts[event_type]:
             print(f"  {event_type + 's':9}: {counts[event_type]}")
 

@@ -276,6 +276,12 @@ def apply_event_to_model(model: OverlayModel, event: Any) -> None:
     """
     if event.type == "move":
         return
+    if event.type == "scroll":
+        # Discrete and instantaneous: show it, but there is no matching "up"
+        # event to clear it, so it is not held.
+        model.press("WHEEL+" if event.dy > 0 else "WHEEL-")
+        model.release("WHEEL+" if event.dy > 0 else "WHEEL-")
+        return
     code = click_label(event.code) if event.type == "click" else event.code
     if event.action == "down":
         model.press(code)

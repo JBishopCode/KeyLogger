@@ -17,7 +17,7 @@ from collections.abc import Callable, Sequence
 from functools import partial
 from typing import Protocol
 
-from .backend import BackendUnavailableError, load_pydirectinput
+from .backend import BackendUnavailableError, load_pydirectinput, send_wheel
 from .events import MacroEvent
 
 logger = logging.getLogger(__name__)
@@ -143,8 +143,10 @@ class _HeldInput:
         self._buttons: set[str] = set()
 
     def record(self, event: MacroEvent) -> None:
-        if event.type == "move":
-            return  # movement holds nothing that needs releasing
+        # Only keys and buttons can be left held; movement and scrolling are
+        # instantaneous and have nothing to release.
+        if event.type not in ("key", "click"):
+            return
         target = self._keys if event.type == "key" else self._buttons
         code = code_to_key(event.code) if event.type == "key" else code_to_button(event.code)
         if event.action == "down":
@@ -176,9 +178,12 @@ class Player:
         clock: Callable[[], float] = time.perf_counter,
         stop_event: StopSignal | None = None,
         on_event: Callable[[MacroEvent], None] | None = None,
+        scroll: Callable[[int], None] | None = None,
     ) -> None:
         #: Called with each event as it is sent, so a live overlay can show it.
         self._on_event = on_event
+        #: Wheel scrolling: pydirectinput cannot do it, so it goes via Win32.
+        self._scroll = scroll if scroll is not None else send_wheel
         self._backend = backend if backend is not None else _load_default_backend()
         self._sleep = sleep
         self._clock = clock
@@ -328,6 +333,11 @@ class Player:
         Mouse buttons are bound by keyword: ``mouseDown``/``mouseUp`` take
         ``x`` first, so a positional button would be treated as a coordinate.
         """
+        if event.type == "scroll":
+            if self._scroll is None:
+                raise UnknownCodeError("no wheel backend available for scrolling")
+            # dy carries wheel clicks; positive scrolls up.
+            return partial(self._scroll, event.dy)
         if event.type == "move":
             move = getattr(self._backend, "move", None)
             if move is None:

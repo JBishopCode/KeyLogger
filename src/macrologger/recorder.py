@@ -161,10 +161,12 @@ class Recorder:
             "recorded %s %s %s @ %.4fs", event.type, event.action, event.code, event.t
         )
 
-    def _safe_append(self, event_type: str, action: str, code: str) -> None:
+    def _safe_append(
+        self, event_type: str, action: str, code: str, dx: int = 0, dy: int = 0
+    ) -> None:
         """Append an event, never letting a failure kill the listener thread."""
         try:
-            self._append(event_type, action, code)
+            self._append(event_type, action, code, dx=dx, dy=dy)
         except Exception:  # noqa: BLE001 - dropping one event beats losing the macro
             logger.exception("failed to record %s %s %s", event_type, action, code)
 
@@ -239,6 +241,19 @@ class Recorder:
         self._safe_append_move(now)
         return None
 
+    def _on_scroll(self, x: int, y: int, dx: int, dy: int) -> bool | None:
+        """Record a wheel scroll (hotbar selection in Minecraft).
+
+        Always captured, independent of the mouse-movement toggle: scrolling
+        is a discrete action like a keypress, not continuous motion.
+        """
+        if self.stopped:
+            return False
+        if not (dx or dy):
+            return None
+        self._safe_append("scroll", "scroll", "", dx=dx, dy=dy)
+        return None
+
     def request_stop(self) -> None:
         """Stop recording without waiting for the stop key.
 
@@ -300,7 +315,9 @@ class Recorder:
             self.stop_code,
             "on" if self.record_movement else "off",
         )
-        mouse_listener = mouse.Listener(on_click=self._on_click)
+        mouse_listener = mouse.Listener(
+            on_click=self._on_click, on_scroll=self._on_scroll
+        )
         mouse_listener.start()
         self._listeners = [mouse_listener]
 

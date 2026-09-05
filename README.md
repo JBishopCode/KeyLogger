@@ -92,7 +92,19 @@ Macros are saved to `macros/<name>.json`:
 ```
 
 `t` is seconds since the first recorded event (`time.perf_counter()`), so replay reproduces
-the original inter-event gaps. Mouse *movement* is deliberately never recorded or replayed.
+the original inter-event gaps.
+
+Event types:
+
+| `type` | `action` | Carries | Notes |
+|---|---|---|---|
+| `key` | `down` / `up` | `code` (`"w"`, `"f5"`, `"shift"`) | |
+| `click` | `down` / `up` | `code` (`"left"`, `"right"`, `"middle"`) | |
+| `scroll` | `scroll` | `dy` = wheel clicks, positive is up | hotbar selection; always recorded |
+| `move` | `move` | `dx`/`dy` = relative pixels | only with `--mouse-movement` |
+
+Older macros still load: v1 files (no `version`, no `dx`/`dy`) and v2 files (no `scroll`)
+are read unchanged.
 
 ### Overlay spike (Milestone 4, needs in-game verification)
 

@@ -1,8 +1,11 @@
 """Tests for saving and loading named macros under macros/."""
 
 import json
+from pathlib import Path
 
 import pytest
+
+from macrologger import storage
 
 from macrologger.events import MacroEvent, MacroSerializationError
 from macrologger.storage import (
@@ -89,6 +92,21 @@ def test_load_wrong_schema_raises_serialization_error(tmp_path):
 
     with pytest.raises(MacroSerializationError):
         load_macro("bad", macros_dir=tmp_path)
+
+
+def test_default_macros_dir_is_relative_when_running_from_source(monkeypatch):
+    monkeypatch.delattr(storage.sys, "frozen", raising=False)
+
+    assert storage.default_macros_dir() == Path("macros")
+
+
+def test_default_macros_dir_sits_beside_a_frozen_exe(monkeypatch, tmp_path):
+    """A double-clicked .exe must not scatter macros into the launch folder."""
+    exe = tmp_path / "MacroLogger.exe"
+    monkeypatch.setattr(storage.sys, "frozen", True, raising=False)
+    monkeypatch.setattr(storage.sys, "executable", str(exe), raising=False)
+
+    assert storage.default_macros_dir() == tmp_path / "macros"
 
 
 def test_list_macros_is_empty_when_the_directory_does_not_exist(tmp_path):

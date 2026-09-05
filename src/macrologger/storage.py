@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import json
 import logging
+import sys
 from collections import Counter
 from collections.abc import Sequence
 from dataclasses import dataclass
@@ -22,7 +23,20 @@ from .events import (
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_MACROS_DIR = Path("macros")
+def default_macros_dir() -> Path:
+    """Where macros live.
+
+    Running from source that is ``./macros``. In a packaged .exe it is a
+    ``macros`` folder beside the executable, so double-clicking the app from
+    anywhere still finds the same library instead of scattering files into
+    whatever directory Windows happened to launch it from.
+    """
+    if getattr(sys, "frozen", False):
+        return Path(sys.executable).resolve().parent / "macros"
+    return Path("macros")
+
+
+DEFAULT_MACROS_DIR = default_macros_dir()
 
 _ALLOWED_NAME_EXTRAS = {"-", "_", "."}
 

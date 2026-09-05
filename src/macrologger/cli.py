@@ -16,9 +16,9 @@ import sys
 import threading
 import time
 from collections import Counter
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 
-from .backend import load_pynput
+from .backend import load_pydirectinput, load_pynput
 from .events import MacroEvent, MacroSerializationError
 from .hotkey import DEFAULT_HOTKEY, HotkeyListener, InvalidHotkeyError, PlaybackToggle
 from .overlay import KeyOverlay, OverlayModel, attach_input_listeners
@@ -107,6 +107,10 @@ def build_parser() -> argparse.ArgumentParser:
     )
 
     subparsers.add_parser("gui", help="open the control window")
+
+    subparsers.add_parser(
+        "doctor", help="check that every input backend loads (run this first)"
+    )
 
     subparsers.add_parser("list", help="list the macros in the library")
 
@@ -210,6 +214,41 @@ def _do_record(
     path = save_macro(name, events, macros_dir=DEFAULT_MACROS_DIR)
     moves = sum(1 for event in events if event.type == "move")
     print(f"Saved {len(events)} event(s) ({moves} movement) to {path}")
+    return EXIT_OK
+
+
+def _do_doctor() -> int:
+    """Check every backend loads. The packaged build's smoke test.
+
+    PyInstaller resolves imports statically, so a dynamically imported module
+    can go missing from a frozen build and only fail when the user tries to
+    record. This surfaces that immediately, without sending any input.
+    """
+    checks: list[tuple[str, Callable[[], object]]] = [
+        ("pynput (capture)", load_pynput),
+        ("pydirectinput (replay)", load_pydirectinput),
+        ("pywin32 (window titles, overlay)", lambda: __import__("win32gui")),
+        ("tkinter (control window)", lambda: __import__("tkinter")),
+    ]
+
+    print(f"macros directory: {DEFAULT_MACROS_DIR}")
+    print(f"python          : {sys.version.split()[0]}")
+    print(f"frozen exe      : {getattr(sys, 'frozen', False)}\n")
+
+    failures = 0
+    for label, check in checks:
+        try:
+            check()
+        except Exception as exc:  # noqa: BLE001 - report, do not raise
+            failures += 1
+            print(f"  MISSING  {label}\n           {exc}")
+        else:
+            print(f"  ok       {label}")
+
+    if failures:
+        print(f"\n{failures} backend(s) missing - this build will not work.")
+        return EXIT_ERROR
+    print("\nAll backends loaded.")
     return EXIT_OK
 
 
@@ -511,6 +550,8 @@ def main(argv: Sequence[str] | None = None) -> int:
 
             run_app(macros_dir=DEFAULT_MACROS_DIR)
             return EXIT_OK
+        if args.command == "doctor":
+            return _do_doctor()
         if args.command == "list":
             return _do_list()
         if args.command == "inspect":

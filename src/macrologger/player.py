@@ -175,7 +175,10 @@ class Player:
         sleep: Callable[[float], None] = time.sleep,
         clock: Callable[[], float] = time.perf_counter,
         stop_event: StopSignal | None = None,
+        on_event: Callable[[MacroEvent], None] | None = None,
     ) -> None:
+        #: Called with each event as it is sent, so a live overlay can show it.
+        self._on_event = on_event
         self._backend = backend if backend is not None else _load_default_backend()
         self._sleep = sleep
         self._clock = clock
@@ -259,6 +262,11 @@ class Player:
             logger.debug("replaying %s %s %s", event.type, event.action, event.code)
             send()
             held.record(event)
+            if self._on_event is not None:
+                try:
+                    self._on_event(event)
+                except Exception:  # noqa: BLE001 - display must not stop playback
+                    logger.exception("on_event handler failed")
         return True
 
     @staticmethod

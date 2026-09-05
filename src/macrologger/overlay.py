@@ -256,6 +256,33 @@ def attach_input_listeners(model: OverlayModel, pynput: Any = None) -> list[Any]
     return listeners
 
 
+def new_overlay_window(tk: Any, parent: Any = None) -> Any:
+    """Create the overlay's window.
+
+    Standalone use gets its own ``Tk()`` root; inside the control window it
+    must be a ``Toplevel``, because a second root in one process is a reliable
+    way to crash Tk.
+    """
+    if parent is None:
+        return tk.Tk()
+    return tk.Toplevel(parent)
+
+
+def apply_event_to_model(model: OverlayModel, event: Any) -> None:
+    """Reflect one replayed event on the overlay.
+
+    Movement is intentionally not displayed: it fires continuously and would
+    push the keys straight out of a small display.
+    """
+    if event.type == "move":
+        return
+    code = click_label(event.code) if event.type == "click" else event.code
+    if event.action == "down":
+        model.press(code)
+    else:
+        model.release(code)
+
+
 class KeyOverlay:
     """Borderless click-through Tk window showing the model's state."""
 
@@ -269,11 +296,13 @@ class KeyOverlay:
         position: tuple[int, int] = (24, 24),
         alpha: float = 0.85,
         click_through: bool = True,
+        parent: Any = None,
     ) -> None:
         self.model = model
         self.position = position
         self.alpha = alpha
         self.click_through = click_through
+        self.parent = parent
         self.hwnd: int | None = None
         self._root: Any = None
         self._status_label: Any = None
@@ -282,7 +311,7 @@ class KeyOverlay:
     def _build(self) -> Any:
         import tkinter as tk
 
-        root = tk.Tk()
+        root = new_overlay_window(tk, self.parent)
         root.overrideredirect(True)  # no title bar or borders
         root.attributes("-topmost", True)
         root.attributes("-alpha", self.alpha)
@@ -353,14 +382,21 @@ class KeyOverlay:
             raise_to_top(self.hwnd)
         self._root.after(TOPMOST_REASSERT_MS, self._reassert_topmost)
 
-    def run(self) -> None:
-        """Show the overlay and block until the window is closed."""
+    def show(self) -> None:
+        """Display the overlay without blocking.
+
+        Used inside the control window, whose own mainloop drives the ticks.
+        """
         root = self._build()
         self._repaint()
         root.after(REFRESH_MS, self._tick)
         root.after(TOPMOST_REASSERT_MS, self._reassert_topmost)
-        logger.info("overlay started")
-        root.mainloop()
+        logger.info("overlay shown")
+
+    def run(self) -> None:
+        """Show the overlay and block until the window is closed."""
+        self.show()
+        self._root.mainloop()
 
     def close(self) -> None:
         if self._root is not None:

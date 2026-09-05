@@ -365,6 +365,29 @@ def test_inspect_missing_macro_exits_non_zero(macros_dir, capsys):
     assert "nope" in capsys.readouterr().err
 
 
+def test_doctor_reports_every_backend(macros_dir, capsys):
+    exit_code = cli.main(["doctor"])
+
+    out = capsys.readouterr().out
+    assert exit_code == 0
+    for backend in ("pynput", "pydirectinput", "pywin32", "tkinter"):
+        assert backend in out
+
+
+def test_doctor_fails_when_a_backend_is_missing(macros_dir, monkeypatch, capsys):
+    """This is the check that catches a broken packaged build."""
+
+    def no_pynput():
+        raise BackendUnavailableError("pynput is not installed")
+
+    monkeypatch.setattr(cli, "load_pynput", no_pynput)
+
+    exit_code = cli.main(["doctor"])
+
+    assert exit_code != 0
+    assert "MISSING" in capsys.readouterr().out
+
+
 def test_unknown_command_exits_non_zero(macros_dir):
     with pytest.raises(SystemExit) as excinfo:
         cli.main(["frobnicate", "demo"])

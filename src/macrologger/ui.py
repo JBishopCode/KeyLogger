@@ -18,7 +18,7 @@ from typing import Any
 
 from .controller import AppController, AppState, PlaybackOptions
 from .hotkey import DEFAULT_HOTKEY, HotkeyListener, InvalidHotkeyError
-from .overlay import KeyOverlay, OverlayModel
+from .overlay import KeyOverlay, OverlayModel, apply_event_to_model
 from .storage import DEFAULT_MACROS_DIR
 
 logger = logging.getLogger(__name__)
@@ -116,6 +116,7 @@ class ControlWindow:
         self._build_footer(ttk, container)
 
         self.controller.on_state_change = self._events.put
+        self.controller.on_playback_event = self._on_playback_event
         root.protocol("WM_DELETE_WINDOW", self.close)
         root.after(80, self._drain_events)
         self.refresh_library()
@@ -509,9 +510,25 @@ class ControlWindow:
 
     def on_overlay(self) -> None:
         if self._widgets["overlay_var"].get():
-            self.set_message("Overlay will show while a macro plays.")
+            self.set_message("Overlay will appear while a macro plays.")
         else:
             self._close_overlay()
+
+    def _show_overlay(self) -> None:
+        """Open the HUD as a Toplevel of this window (never a second Tk root)."""
+        if self._overlay is not None or self.root is None:
+            return
+        self.overlay_model.set_idle()
+        self._overlay = KeyOverlay(self.overlay_model, parent=self.root)
+        try:
+            self._overlay.show()
+        except Exception:  # noqa: BLE001 - the HUD must never break playback
+            logger.exception("could not show overlay")
+            self._overlay = None
+
+    def _on_playback_event(self, event: Any) -> None:
+        """Runs on the playback thread: only touch the model, never widgets."""
+        apply_event_to_model(self.overlay_model, event)
 
     def _close_overlay(self) -> None:
         if self._overlay is not None:
@@ -539,8 +556,15 @@ class ControlWindow:
         self._widgets["play_button"].configure(
             state="disabled" if state is not AppState.IDLE else "normal"
         )
+        if state is AppState.PLAYING and self._widgets["overlay_var"].get():
+            self._show_overlay()
+            self.overlay_model.set_playing(self.selected_macro() or "macro", 1, None)
+        if state is AppState.RECORDING and self._widgets["overlay_var"].get():
+            self._show_overlay()
+            self.overlay_model.set_recording(self._widgets["name_var"].get().strip())
         if state is AppState.IDLE:
             self.overlay_model.set_idle()
+            self._close_overlay()
             self.refresh_library()
             if self.controller.last_error:
                 self.set_message(self.controller.last_error, error=True)

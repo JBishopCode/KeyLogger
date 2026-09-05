@@ -79,6 +79,9 @@ class AppController:
         #: and is responsible for marshalling onto its own thread.
         self.on_state_change: Callable[[AppState], None] | None = None
 
+        #: Called with each event as it replays, for the live overlay.
+        self.on_playback_event: Callable[[MacroEvent], None] | None = None
+
         self._worker: threading.Thread | None = None
         self._stop_event = threading.Event()
         self._lock = threading.Lock()
@@ -177,7 +180,9 @@ class AppController:
             # Load before switching state so a bad macro leaves us idle.
             events = self.load(name)
             self._stop_event = threading.Event()
-            self.player = self._player_factory(stop_event=self._stop_event)
+            self.player = self._player_factory(
+                stop_event=self._stop_event, on_event=self.on_playback_event
+            )
             self._worker = threading.Thread(
                 target=self._run_playback,
                 args=(events, options),

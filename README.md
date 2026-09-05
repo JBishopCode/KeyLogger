@@ -134,6 +134,48 @@ python -m macrologger.cli gui
 
 The CLI commands all still work and are unchanged.
 
+## Building the .exe
+
+```powershell
+pip install -r requirements-dev.txt
+python build.py            # folder build  -> dist/MacroLogger/  (+ .zip)
+python build.py --onefile  # single file   -> dist/MacroLogger.exe
+python build.py --both     # build both and compare
+```
+
+**The folder build is the one to share.** A one-file exe unpacks itself into
+`%TEMP%` on every launch, which is slower to start and is exactly the pattern
+antivirus heuristics flag — and this app already looks like a keylogger to a
+scanner. `build.py` zips the folder build for you.
+
+| Shape | Size | Notes |
+|---|---|---|
+| `--onedir` | 26.4 MB (11.8 MB zipped) | recommended; fast start, less likely quarantined |
+| `--onefile` | 8.5 MB | single file, slower start, more likely flagged |
+
+Double-clicking `MacroLogger.exe` opens the control window. Passing arguments
+runs the CLI instead (`MacroLogger.exe list`, `MacroLogger.exe play demo`).
+
+Macros are stored in a `macros` folder **next to the executable**, so the app
+finds the same library wherever it is launched from.
+
+### First thing to run on a new PC
+
+```powershell
+MacroLogger.exe doctor
+```
+
+Confirms every input backend loaded. Packaging can silently drop dynamically
+imported modules, and this catches that immediately instead of at the moment
+you try to record:
+
+```
+  ok       pynput (capture)
+  ok       pydirectinput (replay)
+  ok       pywin32 (window titles, overlay)
+  ok       tkinter (control window)
+```
+
 ## Required for accurate mouse movement
 
 **Turn OFF Windows "Enhance pointer precision".**

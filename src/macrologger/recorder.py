@@ -263,13 +263,23 @@ class Recorder:
             return
 
         now = self._clock()
-        self._pending_dx += dx
-        self._pending_dy += dy
-        if now - self._last_move_sample < self.move_interval:
-            return
-        if not (self._pending_dx or self._pending_dy):
-            return
-        self._safe_append_move(now)
+        # Guarded: this runs on the raw-input pump thread while the pynput
+        # listeners run on theirs, and the accumulator is shared state.
+        with self._lock:
+            self._pending_dx += dx
+            self._pending_dy += dy
+            if now - self._last_move_sample < self.move_interval:
+                return
+            if not (self._pending_dx or self._pending_dy):
+                return
+            dx_total, dy_total = self._pending_dx, self._pending_dy
+            self._pending_dx = self._pending_dy = 0
+            self._last_move_sample = now
+
+        try:
+            self._append("move", "move", "", dx=dx_total, dy=dy_total, now=now)
+        except Exception:  # noqa: BLE001 - never kill the pump thread
+            logger.exception("failed to record movement %s,%s", dx_total, dy_total)
 
     def _safe_append_move(self, now: float) -> None:
         dx, dy = self._pending_dx, self._pending_dy

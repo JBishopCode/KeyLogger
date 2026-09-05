@@ -4,7 +4,13 @@ Raw Input reports true device deltas, unaffected by a game recentring the
 cursor. Only the decoding is tested here; the message pump needs a window.
 """
 
+import ctypes
+import time
+
 from macrologger.rawinput import (
+    RAWINPUT,
+    RAWINPUTHEADER,
+    RAWMOUSE,
     MOUSE_MOVE_ABSOLUTE,
     MOUSE_MOVE_RELATIVE,
     RIM_TYPEMOUSE,
@@ -104,3 +110,34 @@ def test_listener_reports_whether_it_is_running():
     listener = RawMouseListener(on_move=lambda dx, dy: None)
 
     assert listener.running is False
+
+
+def test_start_returns_promptly_when_the_pump_thread_fails(monkeypatch):
+    """A crash in the pump thread must not stall recording for the timeout.
+
+    Previously an exception in _run left the ready flag unset, so every
+    recording with movement enabled waited out the full timeout and then
+    reported nothing about why.
+    """
+    listener = RawMouseListener(on_move=lambda dx, dy: None)
+
+    def boom():
+        raise OSError("CreateWindow failed")
+
+    monkeypatch.setattr(listener, "_setup", boom)
+
+    started = time.perf_counter()
+    listener.start(timeout=5.0)
+    elapsed = time.perf_counter() - started
+
+    assert elapsed < 1.0
+    assert listener.running is False
+
+
+def test_struct_layout_matches_win32():
+    """A field-order or type regression would silently corrupt deltas."""
+    header = ctypes.sizeof(RAWINPUTHEADER)
+    expected_header = 24 if ctypes.sizeof(ctypes.c_void_p) == 8 else 16
+
+    assert header == expected_header
+    assert ctypes.sizeof(RAWINPUT) >= header + ctypes.sizeof(RAWMOUSE) - 8

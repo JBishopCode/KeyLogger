@@ -370,6 +370,10 @@ class KeyOverlay:
         )
 
     def _tick(self) -> None:
+        # A tick can already be queued when close() runs; without this guard
+        # it fires against a destroyed window and raises inside Tk's loop.
+        if self._root is None:
+            return
         if self.model.consume_dirty():
             self._repaint()
         self._root.after(REFRESH_MS, self._tick)

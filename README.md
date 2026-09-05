@@ -240,6 +240,17 @@ This tool installs a global keyboard hook, which is the same pattern a keylogger
 antivirus and SmartScreen may flag it. Nothing is transmitted — events stay in local JSON
 files you can open and read.
 
+**Scope of capture, stated plainly:** while a recording is running, keyboard and
+mouse-button input is captured system-wide, not just in Minecraft. With "Record mouse
+movement" enabled, mouse motion is additionally captured through Windows Raw Input
+(`RIDEV_INPUTSINK`), which keeps delivering while another window has focus — that is
+what makes recording inside a game with a trapped cursor possible. Capture stops when
+the recording stops.
+
+`build.py` writes a plain-English version of this into `READ ME FIRST.txt` inside the
+built folder, so anyone you hand the zip to gets the disclosure with the program rather
+than having to be told separately.
+
 When the packaged `.exe` arrives in a later milestone it will be unsigned, so Windows
 SmartScreen will show "Windows protected your PC". Choose **More info → Run anyway** to
 launch it.

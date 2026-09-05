@@ -37,6 +37,8 @@ HID_USAGE_GENERIC_MOUSE = 0x02
 MOUSE_MOVE_RELATIVE = 0x00
 MOUSE_MOVE_ABSOLUTE = 0x01
 
+ERROR_CLASS_ALREADY_EXISTS = 1410
+
 
 class RAWINPUTDEVICE(ctypes.Structure):
     _fields_ = [
@@ -167,7 +169,9 @@ class RawMouseListener:
             return
         self._handle_raw(ctypes.cast(buffer, ctypes.POINTER(RAWINPUT)).contents)
 
-    def _run(self) -> None:  # pragma: no cover - needs a real message pump
+    def _setup(self) -> bool:  # pragma: no cover - needs Win32
+        """Create the message-only window and register for mouse input."""
+        import pywintypes
         import win32api
         import win32gui
 
@@ -186,7 +190,11 @@ class RawMouseListener:
         window_class.hInstance = win32api.GetModuleHandle(None)
         try:
             atom = win32gui.RegisterClass(window_class)
-        except Exception:  # noqa: BLE001 - already registered by a prior run
+        except pywintypes.error as exc:
+            # ERROR_CLASS_ALREADY_EXISTS is expected on a second run in the
+            # same process; anything else is a real failure worth raising.
+            if exc.winerror != ERROR_CLASS_ALREADY_EXISTS:
+                raise
             atom = self.WINDOW_CLASS
 
         self._hwnd = win32gui.CreateWindow(
@@ -203,15 +211,41 @@ class RawMouseListener:
         if not ctypes.windll.user32.RegisterRawInputDevices(
             ctypes.byref(device), 1, ctypes.sizeof(RAWINPUTDEVICE)
         ):
-            logger.error("RegisterRawInputDevices failed; movement will not record")
-            self._ready.set()
-            return
-
-        self.running = True
-        self._ready.set()
+            logger.error(
+                "RegisterRawInputDevices failed (win32 error %s); "
+                "movement will not record",
+                ctypes.GetLastError(),
+            )
+            return False
         logger.info("raw mouse input registered (hwnd=%s)", self._hwnd)
-        win32gui.PumpMessages()
-        self.running = False
+        return True
+
+    def _run(self) -> None:
+        """Set up, then pump messages until stopped.
+
+        Everything is guarded: an exception here used to die on this thread
+        with the ready flag unset, so start() waited out its whole timeout and
+        the caller learned nothing about the cause.
+        """
+        pump = None
+        try:
+            if self._setup():
+                import win32gui
+
+                self.running = True
+                pump = win32gui.PumpMessages
+        except Exception:  # noqa: BLE001 - report instead of vanishing
+            logger.exception("raw mouse input could not start")
+        finally:
+            self._ready.set()
+
+        if pump is not None:  # pragma: no cover - needs a real message pump
+            try:
+                pump()
+            except Exception:  # noqa: BLE001
+                logger.exception("raw input message pump stopped unexpectedly")
+            finally:
+                self.running = False
 
     def start(self, timeout: float = 5.0) -> None:
         """Start the pump thread and wait until registration has been attempted."""

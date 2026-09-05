@@ -374,6 +374,48 @@ def test_doctor_reports_every_backend(macros_dir, capsys):
         assert backend in out
 
 
+def test_doctor_checks_raw_mouse_input(macros_dir, monkeypatch, capsys):
+    """Movement recording depends on this and nothing else reports it."""
+
+    class WorkingRaw:
+        def __init__(self, on_move):
+            self.running = False
+
+        def start(self, timeout=5.0):
+            self.running = True
+
+        def stop(self):
+            self.running = False
+
+    monkeypatch.setattr(cli, "RawMouseListener", WorkingRaw)
+
+    cli.main(["doctor"])
+
+    assert "raw mouse input" in capsys.readouterr().out.lower()
+
+
+def test_doctor_fails_when_raw_input_cannot_register(macros_dir, monkeypatch, capsys):
+    """This is the silent failure behind 'movement recorded nothing'."""
+
+    class BrokenRaw:
+        def __init__(self, on_move):
+            self.running = False
+
+        def start(self, timeout=5.0):
+            self.running = False
+
+        def stop(self):
+            pass
+
+    monkeypatch.setattr(cli, "RawMouseListener", BrokenRaw)
+
+    exit_code = cli.main(["doctor"])
+
+    out = capsys.readouterr().out
+    assert exit_code != 0
+    assert "MISSING" in out
+
+
 def test_doctor_fails_when_a_backend_is_missing(macros_dir, monkeypatch, capsys):
     """This is the check that catches a broken packaged build."""
 

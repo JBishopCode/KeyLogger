@@ -23,6 +23,7 @@ from .events import MacroEvent, MacroSerializationError
 from .hotkey import DEFAULT_HOTKEY, HotkeyListener, InvalidHotkeyError, PlaybackToggle
 from .overlay import KeyOverlay, OverlayModel, attach_input_listeners
 from .player import BackendUnavailableError, Player, UnknownCodeError
+from .rawinput import RawMouseListener
 from .recorder import DEFAULT_MOVE_INTERVAL, DEFAULT_STOP_CODE, Recorder
 from .storage import (
     DEFAULT_MACROS_DIR,
@@ -245,8 +246,23 @@ def _do_doctor() -> int:
         else:
             print(f"  ok       {label}")
 
+    # Raw Input is what makes mouse-movement recording work. It registers at
+    # runtime rather than import time, so an import check cannot cover it, and
+    # when it fails movement is silently absent from recordings.
+    raw = RawMouseListener(on_move=lambda dx, dy: None)
+    try:
+        raw.start()
+        if raw.running:
+            print("  ok       raw mouse input (movement recording)")
+        else:
+            failures += 1
+            print("  MISSING  raw mouse input (movement recording)")
+            print("           mouse movement will not be recorded")
+    finally:
+        raw.stop()
+
     if failures:
-        print(f"\n{failures} backend(s) missing - this build will not work.")
+        print(f"\n{failures} check(s) failed - this build will not work fully.")
         return EXIT_ERROR
     print("\nAll backends loaded.")
     return EXIT_OK
